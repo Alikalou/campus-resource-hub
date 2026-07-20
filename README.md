@@ -81,16 +81,22 @@ Before running the project, install:
 * Docker Desktop
 * Visual Studio Code or Cursor
 
-## Project Current Status
+## Progress
 
-The project is currently in **Week 1 — Ownership and Kickoff**.
-
-Current objectives:
+### Week 1 — Ownership and kickoff
 
 * Set up the GitHub repository
-* Confirm the technical stack
-* Initialize the Node.js server
-* Add a basic `/health` endpoint
+* Confirmed the technical stack
+* Initialized the Node.js server
+* Added the `/health` endpoint
+
+### Week 2 — In-memory Resources API
+
+* Defined and documented the Resource model
+* Implemented resource retrieval, creation, and update endpoints
+* Added resource input validation and normalization
+* Added centralized error handling and consistent API responses
+* Added a Postman collection and local environment
 
 ## Documentation
 
