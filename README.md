@@ -27,7 +27,7 @@ The purpose of this project is to build an internal university resource-booking 
 * Express.js
 * JavaScript
 * PostgreSQL
-* Prisma for database access
+* pg for database access
 
 ### Frontend
 
