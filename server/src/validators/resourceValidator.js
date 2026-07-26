@@ -5,7 +5,7 @@ const ALLOWED_FIELDS = [
     "location",
     "type",
     "capacity",
-    "is_bookable",
+    "is_active",
 ];
 
 export function parseResourceId(id) {
@@ -109,9 +109,9 @@ export function validateResource(resource) {
         );
     }
 
-    if (typeof resource.is_bookable !== "boolean") {
+    if (typeof resource.is_active !== "boolean") {
         errors.push(
-            "is_bookable must be a Boolean value."
+            "is_active must be a Boolean value."
         );
     }
 

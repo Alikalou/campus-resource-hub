@@ -21,7 +21,7 @@ function mapResource(row) {
             row.capacity === null
                 ? null
                 : Number(row.capacity),
-        is_bookable: row.is_bookable,
+        is_active: row.is_active,
     };
 }
 
@@ -71,7 +71,7 @@ export async function createResource(req, res, next) {
         location: req.body.location ?? null,
         type: req.body.type,
         capacity: req.body.capacity ?? null,
-        is_bookable: req.body.is_bookable ?? true,
+        is_active: req.body.is_active ?? true,
     });
 
     const validationErrors = validateResource(newResource);
@@ -93,7 +93,7 @@ export async function createResource(req, res, next) {
             location,
             type,
             capacity,
-            is_bookable
+            is_active
         )
         VALUES ($1, $2, $3, $4, $5)
         RETURNING
@@ -102,14 +102,14 @@ export async function createResource(req, res, next) {
             location,
             type,
             capacity,
-            is_bookable;
+            is_active;
     `,
         [
             newResource.name,
             newResource.location,
             newResource.type,
             newResource.capacity ?? null,
-            newResource.is_bookable ?? true,
+            newResource.is_active ?? true,
         ]
     );
 
@@ -278,7 +278,7 @@ export async function updateResource(req, res, next) {
                     location = $3,
                     type = $4,
                     capacity = $5,
-                    is_bookable = $6
+                    is_active = $6
                 WHERE id = $1
                 RETURNING
                     id,
@@ -286,7 +286,7 @@ export async function updateResource(req, res, next) {
                     location,
                     type,
                     capacity,
-                    is_bookable;
+                    is_active;
             `,
             [
                 resourceId,
@@ -294,7 +294,7 @@ export async function updateResource(req, res, next) {
                 updatedResource.location,
                 updatedResource.type,
                 updatedResource.capacity,
-                updatedResource.is_bookable,
+                updatedResource.is_active,
             ]
         );
 
