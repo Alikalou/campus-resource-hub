@@ -18,7 +18,7 @@ dotenv.config({
 
 const migrationsDirectory = path.resolve(
     currentDirectory,
-    "../migrations"
+    "../database/migrations"
 );
 
 const requiredVariables = [
