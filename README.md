@@ -81,7 +81,7 @@ Before running the project, install:
 * Docker Desktop
 * Visual Studio Code or Cursor
 
-## Progress
+## Completed
 
 ### Week 1 — Ownership and kickoff
 
@@ -97,6 +97,14 @@ Before running the project, install:
 * Added resource input validation and normalization
 * Added centralized error handling and consistent API responses
 * Added a Postman collection and local environment
+
+### Week 3 — PostgreSQL integration
+
+* Designed the database schema and ERD
+* Added PostgreSQL with Docker Compose
+* Created migrations and seed data
+* Connected the Resources API to PostgreSQL
+* Refactored resource routes into a dedicated controller
 
 ## Documentation
 
