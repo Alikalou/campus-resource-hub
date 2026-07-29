@@ -1,5 +1,6 @@
 import express from "express";
 import resourceRoutes from "./routes/resourceRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 import { AppError } from "./errors/AppError.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { ERROR_CODES } from "./errors/errorCodes.js";
@@ -11,6 +12,7 @@ app.use(express.json());
 
 //Router mounting, which is a js express feature.
 app.use("/resources", resourceRoutes);
+app.use("/bookings", bookingRoutes);
 
 app.use((req, res, next) => {
     return next(
