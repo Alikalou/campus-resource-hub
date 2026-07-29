@@ -20,7 +20,7 @@ export async function createBooking({
     endTime
 }) {
 
-    const user = findUserById(userId);
+    const user = await findUserById(userId);
 
     if (user === null) {
         throw new AppError(
