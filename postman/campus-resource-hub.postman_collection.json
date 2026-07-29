@@ -67,7 +67,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Engineering Study Room\",\n    \"location\": \"Engineering Building - Floor 2\",\n    \"type\": \"room\",\n    \"capacity\": 12,\n    \"is_bookable\": true\n}",
+              "raw": "{\n    \"name\": \"Engineering Study Room\",\n    \"location\": \"Engineering Building - Floor 2\",\n    \"type\": \"room\",\n    \"capacity\": 12,\n    \"is_active\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -154,7 +154,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Updated Engineering Study Room\",\n    \"capacity\": 16,\n    \"is_bookable\": true\n}",
+              "raw": "{\n    \"name\": \"Updated Engineering Study Room\",\n    \"capacity\": 16,\n    \"is_active\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -281,7 +281,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Projector\",\n    \"location\": \"Media Lab\",\n    \"type\": \"equipment\",\n    \"capacity\": null,\n    \"is_bookable\": true,\n    \"price\": 250\n}",
+              "raw": "{\n    \"name\": \"Projector\",\n    \"location\": \"Media Lab\",\n    \"type\": \"equipment\",\n    \"capacity\": null,\n    \"is_active\": true,\n    \"price\": 250\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -326,7 +326,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"   \",\n    \"location\": \"Main Building\",\n    \"type\": \"invalid-type\",\n    \"capacity\": -5,\n    \"is_bookable\": \"yes\"\n}",
+              "raw": "{\n    \"name\": \"   \",\n    \"location\": \"Main Building\",\n    \"type\": \"invalid-type\",\n    \"capacity\": -5,\n    \"is_active\": \"yes\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

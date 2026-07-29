@@ -35,14 +35,15 @@ assets.
   - May be omitted or set to `null` when the resource type is `equipment`.
   - When provided, it must be a positive integer.
 
-- `is_bookable`
-  - Indicates whether the resource is generally enabled to receive booking
-    requests.
+- `is_active`
+  - Indicates whether the resource is currently active and usable.
   - Required for every resource.
   - Must be a Boolean value.
   - Defaults to `true` when no value is provided.
-  - A value of `false` may indicate that the resource is under maintenance,
-    damaged, retired, or otherwise unavailable for booking.
+  - A value of `false` means the resource is currently unavailable for use,
+    regardless of the reason.
+  - Possible reasons for deactivation include maintenance, damage,
+    retirement, temporary suspension, or administrative deactivation.
 
 ### Representation of Resource Types
 
@@ -59,7 +60,7 @@ resource type:
 | `location`   | Optional      | Optional           |
 | `type`       | Must be `room`| Must be `equipment`|
 | `capacity`   | Required      | Optional           |
-| `is_bookable`| Required      | Required           |
+| `is_active`| Required      | Required           |
 
 For example, a meeting room and a projector would both be stored as
 resources:
@@ -71,5 +72,5 @@ resources:
   "location": "Administration Building, Floor 2",
   "type": "room",
   "capacity": 12,
-  "is_bookable": true
+  "is_active": true
 }

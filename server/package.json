@@ -5,10 +5,14 @@
     "type": "module",
     "scripts": {
         "dev": "node --watch src/server.js",
-        "start": "node src/server.js"
+        "start": "node src/server.js",
+        "db:migrate": "node scripts/migrate.js",
+        "db:seed": "node scripts/seed.js"
     },
     "dependencies": {
+        "bcryptjs": "^3.0.3",
         "dotenv": "^17.4.2",
-        "express": "^5.2.1"
+        "express": "^5.2.1",
+        "pg": "^8.22.0"
     }
 }
