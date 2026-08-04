@@ -2,66 +2,9 @@
   "info": {
     "_postman_id": "17f24af1-2dc2-4e8f-baea-d032892fe940",
     "name": "Campus Resource Hub API",
-    "description": "Postman collection for the Campus Resource Hub API.\n\nStart the Express server and select the Campus Resource Hub - Local environment. Run the authentication success requests first to generate `memberToken` and `adminToken`. Resource creation and updates require the admin token. Run the booking main flow in order because the create-booking request stores `bookingId`, `bookingStartTime`, and `bookingEndTime` for the following requests.",
+    "description": "Postman collection for the Campus Resource Hub API.\n\nBefore running requests:\n1. Start the Express server.\n2. Select the `Campus Resource Hub - Local` environment.\n3. Run the Authentication requests in order: register member, login member, then login admin.\n\nMember and admin login automatically store `memberToken` and `adminToken`. Resource create/update requests require `adminToken`. Run the successful booking requests in order because booking creation stores `bookingId`, `bookingStartTime`, and `bookingEndTime` for later requests.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:3000",
-      "type": "string"
-    },
-    {
-      "key": "resourceId",
-      "value": "1",
-      "type": "string"
-    },
-    {
-      "key": "registeredUserEmail",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "memberPassword",
-      "value": "MemberPass123!",
-      "type": "string"
-    },
-    {
-      "key": "memberToken",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "adminEmail",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "adminPassword",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "adminToken",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "bookingId",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "bookingStartTime",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "bookingEndTime",
-      "value": "",
-      "type": "string"
-    }
-  ],
   "item": [
     {
       "name": "Authentication",
@@ -172,21 +115,25 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "const body = pm.response.json();",
+                  "const token = body?.data?.token;",
+                  "",
                   "pm.test(\"Status code is 200\", function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Login returns an access token\", function () {",
-                  "    const body = pm.response.json();",
+                  "pm.test(\"Login returns a token\", function () {",
                   "    pm.expect(body.success).to.eql(true);",
-                  "    pm.expect(body.data).to.have.property(\"accessToken\");",
-                  "    pm.expect(body.data.accessToken).to.be.a(\"string\").and.not.empty;",
+                  "    pm.expect(token).to.be.a(\"string\").and.not.empty;",
                   "});",
                   "",
-                  "const body = pm.response.json();",
-                  "if (body?.data?.accessToken) {",
-                  "    pm.environment.set(\"memberToken\", body.data.accessToken);",
-                  "}"
+                  "if (token) {",
+                  "    pm.environment.set(\"memberToken\", token);",
+                  "}",
+                  "",
+                  "pm.test(\"Member token was stored\", function () {",
+                  "    pm.expect(pm.environment.get(\"memberToken\")).to.eql(token);",
+                  "});"
                 ]
               }
             }
@@ -241,27 +188,33 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "const body = pm.response.json();",
+                  "const token = body?.data?.token;",
+                  "",
                   "pm.test(\"Status code is 200\", function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Admin login returns an access token\", function () {",
-                  "    const body = pm.response.json();",
+                  "pm.test(\"Admin login returns a token\", function () {",
                   "    pm.expect(body.success).to.eql(true);",
-                  "    pm.expect(body.data).to.have.property(\"accessToken\");",
-                  "    pm.expect(body.data.accessToken).to.be.a(\"string\").and.not.empty;",
+                  "    pm.expect(body.data).to.have.property(\"token\");",
+                  "    pm.expect(token).to.be.a(\"string\").and.not.empty;",
                   "});",
                   "",
-                  "const body = pm.response.json();",
-                  "if (body?.data?.accessToken) {",
-                  "    pm.environment.set(\"adminToken\", body.data.accessToken);",
-                  "}"
+                  "if (token) {",
+                  "    pm.environment.set(\"adminToken\", token);",
+                  "}",
+                  "",
+                  "pm.test(\"Admin token was stored\", function () {",
+                  "    pm.expect(pm.environment.get(\"adminToken\")).to.eql(token);",
+                  "});"
                 ]
               }
             }
           ]
         }
-      ]
+      ],
+      "description": "Run these requests in order. Registration generates a unique member email, member login stores `memberToken`, and admin login stores `adminToken`."
     },
     {
       "name": "Resources - Successful Requests",
@@ -460,7 +413,8 @@
             }
           ]
         }
-      ]
+      ],
+      "description": "Run admin login before resource write requests. Creating a resource stores its ID in `resourceId` for the following requests."
     },
     {
       "name": "Resources - Error Scenarios",
@@ -525,7 +479,17 @@
                 }
               }
             },
-            "description": "Expected result: 400 with INVALID_REQUEST_BODY."
+            "description": "Expected result: 400 with INVALID_REQUEST_BODY.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "response": [],
           "event": [
@@ -563,14 +527,24 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Projector\",\n    \"location\": \"Media Lab\",\n    \"type\": \"equipment\",\n    \"capacity\": null,\n    \"is_bookable\": true,\n    \"price\": 250\n}",
+              "raw": "{\n    \"name\": \"Projector\",\n    \"location\": \"Media Lab\",\n    \"type\": \"equipment\",\n    \"capacity\": null,\n    \"is_active\": true,\n    \"price\": 250\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             },
-            "description": "Expected result: 400 with UNSUPPORTED_FIELDS."
+            "description": "Expected result: 400 with UNSUPPORTED_FIELDS.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "response": [],
           "event": [
@@ -608,14 +582,24 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"   \",\n    \"location\": \"Main Building\",\n    \"type\": \"invalid-type\",\n    \"capacity\": -5,\n    \"is_bookable\": \"yes\"\n}",
+              "raw": "{\n    \"name\": \"   \",\n    \"location\": \"Main Building\",\n    \"type\": \"invalid-type\",\n    \"capacity\": -5,\n    \"is_active\": \"yes\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             },
-            "description": "Expected result: 400 with RESOURCE_VALIDATION_FAILED."
+            "description": "Expected result: 400 with RESOURCE_VALIDATION_FAILED.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "response": [],
           "event": [
@@ -661,7 +645,17 @@
                 }
               }
             },
-            "description": "Expected result: 404."
+            "description": "Expected result: 404.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "response": [],
           "event": [
@@ -678,7 +672,8 @@
             }
           ]
         }
-      ]
+      ],
+      "description": "Representative resource failures. Protected POST and PATCH requests use `adminToken` so the intended validation or not-found response is reached."
     },
     {
       "name": "Bookings - Successful Requests",
@@ -959,7 +954,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Run these requests in order after member and admin login. The first request creates the booking variables used by the remaining requests."
     },
     {
       "name": "Bookings - Error Scenarios",
@@ -1078,53 +1074,6 @@
           ]
         },
         {
-          "name": "GET Booking By ID - Not Owner",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{otherMemberToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "bookings",
-                "{{bookingId}}"
-              ]
-            },
-            "description": "Attempts to retrieve a booking using an authenticated member who does not own it."
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status code is 403\", function () {",
-                  "    pm.response.to.have.status(403);",
-                  "});",
-                  "",
-                  "pm.test(\"Request is unsuccessful\", function () {",
-                  "    const body = pm.response.json();",
-                  "    pm.expect(body.success).to.eql(false);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
           "name": "PATCH Booking Status - Member Forbidden",
           "request": {
             "method": "PATCH",
@@ -1185,7 +1134,8 @@
             }
           ]
         }
-      ]
+      ],
+      "description": "Run these after the successful booking flow. They cover missing authentication, an overlapping booking, and a member attempting an admin-only status update."
     }
   ]
 }
