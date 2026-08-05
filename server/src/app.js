@@ -14,11 +14,17 @@ import {
     requireAdmin,
 } from "./middleware/requireRole.js";
 
+import {
+    getAuditLogs,
+} from "./controllers/auditLogController.js";
+
 
 const app = express();
 
 app.use(express.json());
 
+//The route for getting the audit logs
+app.get("/admin/audit-logs", authenticate, requireAdmin, getAuditLogs);
 
 //Router mounting, which is a js express feature.
 app.use("/resources", resourceRoutes);
