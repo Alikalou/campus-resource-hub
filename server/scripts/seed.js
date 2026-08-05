@@ -86,6 +86,7 @@ async function seed() {
          */
         await client.query(`
             TRUNCATE TABLE
+                audit_logs,
                 bookings,
                 resources,
                 users
