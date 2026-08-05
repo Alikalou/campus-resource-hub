@@ -1,46 +1,36 @@
 //This import is necessary since the controller handles the specification of HTTP codes.
 //But notice something, I'm not importing error codes since it is handled by the booking validator itself.
 import { AppError } from "../errors/AppError.js";
+import { ERROR_CODES } from "../errors/errorCodes.js";
+
 
 //Having services to satisfy the need of the project
 import {
     createBooking as createBookingService,
     getBookingById as getBookingByIdService,
-    getBookings as getBookingsService,
+    getMyBookings as getMyBookingsService,
+    updateBookingStatus as updateBookingStatusService,
+    getAllBookings as getAllBookingsService
 } from "../services/bookingService.js";
 
 //Importing validation layer, but parsing shouldn't be confused with validation since it parses rather than validate. 
 import {
-    parseBookingId,
     validateCreateBooking,
-} from "../validators/bookingValidator.js";
+    validateUpdateBookingStatus
+} from "../validators/booking/bookingValidator.js";
 
-/**
- * POST /bookings
- */
-export async function createBooking(req, res, next) {
+import { parseBookingId } from "../validators/booking/bookingValidationUtils.js";
+
+
+export async function getAllBookings(req, res, next) {
     try {
-        const validation = validateCreateBooking(req.body);
+        const bookings = await getAllBookingsService();
 
-        if (!validation.isValid) {
-            return next(
-                new AppError(
-                    validation.message,
-                    validation.statusCode,
-                    validation.errorCode
-                )
-            );
-        }
-
-        const booking = await createBookingService({
-            userId: req.user.id,
-            ...validation.value,
-        });
-
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
-            data: booking,
+            data: bookings,
         });
+
     } catch (error) {
         return next(error);
     }
@@ -49,9 +39,9 @@ export async function createBooking(req, res, next) {
 /**
  * GET /bookings/me
  */
-export async function getBookings(req, res, next) {
+export async function getMyBookings(req, res, next) {
     try {
-        const bookings = await getBookingsService(req.user.id);
+        const bookings = await getMyBookingsService(req.user.id);
 
         return res.status(200).json({
             success: true,
@@ -81,7 +71,88 @@ export async function getBookingById(req, res, next) {
 
         const booking = await getBookingByIdService(bookingId);
 
+        if (booking.user_id !== req.user.id) {
+            throw new AppError(
+                "You are not allowed to access this booking.",
+                403,
+                ERROR_CODES.FORBIDDEN
+            );
+        }
+
         return res.status(200).json({
+            success: true,
+            data: booking,
+        });
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export async function updateBookingStatus(req, res, next) {
+    try {
+        const bookingId = parseBookingId(req.params.id);
+
+        if (bookingId === null) {
+            return next(
+                new AppError(
+                    "Booking ID must be a positive integer.",
+                    400,
+                    ERROR_CODES.INVALID_BOOKING_ID
+                )
+            );
+        }
+
+        const validation = validateUpdateBookingStatus(req.body);
+
+        if (!validation.isValid) {
+            return next(
+                new AppError(
+                    validation.message,
+                    validation.statusCode,
+                    validation.errorCode
+                )
+            );
+        }
+
+        const result = await updateBookingStatusService({
+            bookingId,
+            status: validation.value.status,
+            adminId: req.user.id,
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: result.booking,
+            audit: result.audit
+        });
+    } catch (error) {
+        return next(error);
+    }
+}
+
+/**
+ * POST /bookings
+ */
+export async function createBooking(req, res, next) {
+    try {
+        const validation = validateCreateBooking(req.body);
+
+        if (!validation.isValid) {
+            return next(
+                new AppError(
+                    validation.message,
+                    validation.statusCode,
+                    validation.errorCode
+                )
+            );
+        }
+
+        const booking = await createBookingService({
+            userId: req.user.id,
+            ...validation.value,
+        });
+
+        return res.status(201).json({
             success: true,
             data: booking,
         });
