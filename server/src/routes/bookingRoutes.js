@@ -1,22 +1,32 @@
 import express from "express";
 
 import {
-    getBookings,
+    getAllBookings,
+    getMyBookings,
     getBookingById,
-    createBooking
+    createBooking,
+    updateBookingStatus
 } from "../controllers/bookingController.js"
 
-import { temporaryUser } from "../middleware/temporaryUser.js";
+//import { temporaryUser } from "../middleware/temporaryUser.js";
+import { authenticate } from "../middleware/authMiddleware.js";
+import { requireAdmin } from "../middleware/requireRole.js";
 
 const router = express.Router();
 
-// POST /bookings
-router.post("/", temporaryUser, createBooking);
+router.get("/all", authenticate, requireAdmin, getAllBookings);
 
-// GET /bookings
-router.get("/", temporaryUser, getBookings);
+// GET /bookings which is basically listing my bookings
+router.get("/mine", authenticate, getMyBookings);
+
+// POST /bookings
+router.post("/", authenticate, createBooking);
 
 // GET /bookings/:id
-router.get("/:id", getBookingById);
+router.get("/:id", authenticate, getBookingById);
+
+// PATCH /bookings/:id
+router.patch("/:id", authenticate, requireAdmin, updateBookingStatus);
+
 
 export default router;
