@@ -1,9 +1,19 @@
 import express from "express";
 import resourceRoutes from "./routes/resourceRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import { AppError } from "./errors/AppError.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { ERROR_CODES } from "./errors/errorCodes.js";
+
+import {
+    authenticate,
+} from "./middleware/authMiddleware.js";
+
+import {
+    requireAdmin,
+} from "./middleware/requireRole.js";
+
 
 const app = express();
 
@@ -13,6 +23,7 @@ app.use(express.json());
 //Router mounting, which is a js express feature.
 app.use("/resources", resourceRoutes);
 app.use("/bookings", bookingRoutes);
+app.use("/auth", authRoutes);
 
 app.use((req, res, next) => {
     return next(
