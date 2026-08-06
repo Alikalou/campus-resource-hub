@@ -106,6 +106,35 @@ Before running the project, install:
 * Connected the Resources API to PostgreSQL
 * Refactored resource routes into a dedicated controller
 
+## Architecture
+
+The backend follows a layered architecture that separates HTTP handling,
+business logic, and database access.
+
+A typical request flows through the application as follows:
+
+Route → Middleware → Controller → Validation → Service → Data Layer → PostgreSQL
+
+- **Routes** define API endpoints and connect them to middleware and controllers.
+- **Middleware** handles shared request concerns, such as temporary user identification.
+- **Controllers** read request data, call the appropriate service, and send HTTP responses.
+- **Validation** checks and normalizes incoming request data.
+- **Services** contain business rules, such as verifying users and resources and detecting booking conflicts.
+- **Data-layer modules** execute PostgreSQL queries and return database records.
+- **Error middleware** converts application errors into consistent API responses.
+
+For example, creating a booking follows this flow:
+
+POST /bookings
+→ temporary user middleware
+→ booking controller
+→ booking validation
+→ booking service
+→ booking data layer
+→ PostgreSQL
+→ HTTP response
+
 ## Documentation
 
 - [Resource model](server/docs/resource-model.md)
+- [Booking model](server/docs/booking-model.md)
