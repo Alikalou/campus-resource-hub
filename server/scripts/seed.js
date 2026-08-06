@@ -86,13 +86,14 @@ async function seed() {
          */
         await client.query(`
             TRUNCATE TABLE
+                audit_logs,
                 bookings,
                 resources,
                 users
             RESTART IDENTITY;
         `);
 
-        const demoPassword = "Password123!";
+        const demoPassword = "12345678";
 
         const passwordHash = await bcrypt.hash(
             demoPassword,
@@ -103,22 +104,22 @@ async function seed() {
          * Users
          */
         const adminId = await insertUser({
-            name: "Campus Administrator",
-            email: "admin@campus.test",
+            name: "hassan",
+            email: "hassan@gmail.com",
             passwordHash,
             role: "admin",
         });
 
         const aliId = await insertUser({
-            name: "Ali Member",
-            email: "ali@campus.test",
+            name: "Ali",
+            email: "ali@gmail.com",
             passwordHash,
             role: "member",
         });
 
         const saraId = await insertUser({
-            name: "Sara Member",
-            email: "sara@campus.test",
+            name: "Sara",
+            email: "sara@gmail.com",
             passwordHash,
             role: "member",
         });
@@ -242,9 +243,9 @@ async function seed() {
         console.log("- 5 bookings");
         console.log("");
         console.log("Demo accounts:");
-        console.log(`- Admin: admin@campus.test`);
-        console.log(`- Member: ali@campus.test`);
-        console.log(`- Member: sara@campus.test`);
+        console.log(`- Admin: hassan@gmail.com`);
+        console.log(`- Member: ali@gmail.com`);
+        console.log(`- Member: sara@gmail.com`);
         console.log(`- Password: ${demoPassword}`);
 
         /*

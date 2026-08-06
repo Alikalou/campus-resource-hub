@@ -30,7 +30,7 @@ period of time.
 - `status`
   - Represents the booking's current state.
   - Defaults to `pending`.
-  - Accepted values are `pending`, `approved`, `rejected`, and `cancelled`.
+  - Accepted values are `pending`, `approved` and `rejected`.
 
 - `created_at`
   - Records when the booking was created.
@@ -42,7 +42,6 @@ period of time.
 
 - `pending` → `approved`
 - `pending` → `rejected`
-- `pending` → `cancelled`
 
 ### Relationships
 

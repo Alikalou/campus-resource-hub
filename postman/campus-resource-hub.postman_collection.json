@@ -2,22 +2,279 @@
   "info": {
     "_postman_id": "17f24af1-2dc2-4e8f-baea-d032892fe940",
     "name": "Campus Resource Hub API",
-    "description": "Postman collection for the Campus Resource Hub API.\n\nThe successful POST request automatically stores the created resource ID in `resourceId`.",
+    "description": "Postman collection for the Campus Resource Hub API.\n\nBefore running requests:\n1. Start the Express server.\n2. Select the `Campus Resource Hub - Local` environment.\n3. Run the Authentication requests in order: register member, login member, then login admin.\n\nMember and admin login automatically store `memberToken` and `adminToken`. Resource create/update requests require `adminToken`. Run the successful booking requests in order because booking creation stores `bookingId`, `bookingStartTime`, and `bookingEndTime` for later requests.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "variable": [
+  "item": [
     {
-      "key": "baseUrl",
-      "value": "http://localhost:3000",
-      "type": "string"
+      "name": "GET Audit Logs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/admin/audit-logs?page=1&limit=20",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "audit-logs"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Returns paginated audit logs to an authenticated administrator, ordered from newest to oldest."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Audit logs and pagination are returned\", function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.success).to.eql(true);",
+              "    pm.expect(body.data.auditLogs).to.be.an(\"array\");",
+              "    pm.expect(body.data.pagination).to.be.an(\"object\");",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
-      "key": "resourceId",
-      "value": "1",
-      "type": "string"
-    }
-  ],
-  "item": [
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "POST Register Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Postman Member\",\n    \"email\": \"{{registeredUserEmail}}\",\n    \"password\": \"{{memberPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Creates a normal member. A pre-request script generates a unique email and stores it in `registeredUserEmail` so the request can be run repeatedly."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const uniqueEmail = `postman.member.${Date.now()}@example.com`;",
+                  "pm.environment.set(\"registeredUserEmail\", uniqueEmail);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Registration succeeds\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.success).to.eql(true);",
+                  "    pm.expect(body).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "pm.test(\"Password hash is not exposed\", function () {",
+                  "    const responseText = pm.response.text();",
+                  "    pm.expect(responseText).not.to.include(\"password_hash\");",
+                  "    pm.expect(responseText).not.to.include(\"passwordHash\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Login Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{registeredUserEmail}}\",\n    \"password\": \"{{memberPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Signs in the member created by the previous request. The test script stores the returned JWT in `memberToken`."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const token = body?.data?.token;",
+                  "",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Login returns a token\", function () {",
+                  "    pm.expect(body.success).to.eql(true);",
+                  "    pm.expect(token).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "if (token) {",
+                  "    pm.environment.set(\"memberToken\", token);",
+                  "}",
+                  "",
+                  "pm.test(\"Member token was stored\", function () {",
+                  "    pm.expect(pm.environment.get(\"memberToken\")).to.eql(token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{adminEmail}}\",\n    \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Signs in the admin created by your seed or create-admin script. Set `adminEmail` and `adminPassword` in the environment first. The returned JWT is stored in `adminToken`."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get(\"adminEmail\") || !pm.environment.get(\"adminPassword\")) {",
+                  "    throw new Error(\"Set adminEmail and adminPassword in the selected Postman environment.\");",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const token = body?.data?.token;",
+                  "",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Admin login returns a token\", function () {",
+                  "    pm.expect(body.success).to.eql(true);",
+                  "    pm.expect(body.data).to.have.property(\"token\");",
+                  "    pm.expect(token).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "if (token) {",
+                  "    pm.environment.set(\"adminToken\", token);",
+                  "}",
+                  "",
+                  "pm.test(\"Admin token was stored\", function () {",
+                  "    pm.expect(pm.environment.get(\"adminToken\")).to.eql(token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Run these requests in order. Registration generates a unique member email, member login stores `memberToken`, and admin login stores `adminToken`."
+    },
     {
       "name": "Resources - Successful Requests",
       "item": [
@@ -65,14 +322,15 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"Engineering Study Room\",\n    \"location\": \"Engineering Building - Floor 2\",\n    \"type\": \"room\",\n    \"capacity\": 12,\n    \"is_active\": true\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
                 }
-              }
+              ]
             },
             "url": {
               "raw": "{{baseUrl}}/resources",
@@ -83,7 +341,16 @@
                 "resources"
               ]
             },
-            "description": "Creates a valid resource. The test script stores the returned ID in the `resourceId` environment variable."
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Engineering Study Room\",\n    \"location\": \"Engineering Building - Floor 2\",\n    \"type\": \"room\",\n    \"capacity\": 12,\n    \"is_active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Creates a resource as an authenticated admin. The test script stores the returned ID in the resourceId environment variable."
           },
           "response": [],
           "event": [
@@ -152,14 +419,15 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"Updated Engineering Study Room\",\n    \"capacity\": 16,\n    \"is_active\": true\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
                 }
-              }
+              ]
             },
             "url": {
               "raw": "{{baseUrl}}/resources/{{resourceId}}",
@@ -170,6 +438,15 @@
                 "resources",
                 "{{resourceId}}"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Engineering Study Room\",\n    \"capacity\": 16,\n    \"is_active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "response": [],
@@ -181,13 +458,22 @@
                 "exec": [
                   "pm.test(\"Status code is 200\", function () {",
                   "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Updated resource is returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.success).to.eql(true);",
+                  "    pm.expect(body.data).to.have.property(\"id\");",
+                  "    pm.expect(body.data.name).to.eql(\"Updated Engineering Study Room\");",
+                  "    pm.expect(body.data.capacity).to.eql(16);",
                   "});"
                 ]
               }
             }
           ]
         }
-      ]
+      ],
+      "description": "Run admin login before resource write requests. Creating a resource stores its ID in `resourceId` for the following requests."
     },
     {
       "name": "Resources - Error Scenarios",
@@ -234,15 +520,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "[]",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
               "raw": "{{baseUrl}}/resources",
               "host": [
@@ -252,7 +529,26 @@
                 "resources"
               ]
             },
-            "description": "Expected result: 400 with INVALID_REQUEST_BODY."
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Expected result: 400 with INVALID_REQUEST_BODY.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "response": [],
           "event": [
@@ -279,15 +575,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"Projector\",\n    \"location\": \"Media Lab\",\n    \"type\": \"equipment\",\n    \"capacity\": null,\n    \"is_active\": true,\n    \"price\": 250\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
               "raw": "{{baseUrl}}/resources",
               "host": [
@@ -297,7 +584,26 @@
                 "resources"
               ]
             },
-            "description": "Expected result: 400 with UNSUPPORTED_FIELDS."
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Projector\",\n    \"location\": \"Media Lab\",\n    \"type\": \"equipment\",\n    \"capacity\": null,\n    \"is_active\": true,\n    \"price\": 250\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Expected result: 400 with UNSUPPORTED_FIELDS.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "response": [],
           "event": [
@@ -324,15 +630,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"   \",\n    \"location\": \"Main Building\",\n    \"type\": \"invalid-type\",\n    \"capacity\": -5,\n    \"is_active\": \"yes\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
               "raw": "{{baseUrl}}/resources",
               "host": [
@@ -342,7 +639,26 @@
                 "resources"
               ]
             },
-            "description": "Expected result: 400 with RESOURCE_VALIDATION_FAILED."
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"   \",\n    \"location\": \"Main Building\",\n    \"type\": \"invalid-type\",\n    \"capacity\": -5,\n    \"is_active\": \"yes\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Expected result: 400 with RESOURCE_VALIDATION_FAILED.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "response": [],
           "event": [
@@ -369,15 +685,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"This Resource Does Not Exist\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
               "raw": "{{baseUrl}}/resources/999999",
               "host": [
@@ -388,7 +695,26 @@
                 "999999"
               ]
             },
-            "description": "Expected result: 404."
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"This Resource Does Not Exist\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Expected result: 404.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "response": [],
           "event": [
@@ -405,7 +731,470 @@
             }
           ]
         }
-      ]
+      ],
+      "description": "Representative resource failures. Protected POST and PATCH requests use `adminToken` so the intended validation or not-found response is reached."
+    },
+    {
+      "name": "Bookings - Successful Requests",
+      "item": [
+        {
+          "name": "01 - POST Create Booking - Member",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const start = new Date(Date.now() + 24 * 60 * 60 * 1000);",
+                  "start.setUTCSeconds(0, 0);",
+                  "const end = new Date(start.getTime() + 60 * 60 * 1000);",
+                  "pm.environment.set(\"bookingStartTime\", start.toISOString());",
+                  "pm.environment.set(\"bookingEndTime\", end.toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "const booking = body.data?.booking ?? body.data;",
+                  "pm.test(\"Booking was created\", function () {",
+                  "  pm.expect(body.success).to.eql(true);",
+                  "  pm.expect(booking).to.have.property(\"id\");",
+                  "  pm.expect(booking.status).to.eql(\"pending\");",
+                  "});",
+                  "if (booking?.id !== undefined) pm.environment.set(\"bookingId\", String(booking.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": {{resourceId}},\n  \"start_time\": \"{{bookingStartTime}}\",\n  \"end_time\": \"{{bookingEndTime}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 - GET My Bookings - Member",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "const bookings = Array.isArray(body.data) ? body.data : body.data?.bookings;",
+                  "pm.test(\"Member bookings are returned\", function () {",
+                  "  pm.expect(body.success).to.eql(true);",
+                  "  pm.expect(bookings).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Created booking is included\", function () {",
+                  "  const id = pm.environment.get(\"bookingId\");",
+                  "  pm.expect(bookings.some(b => String(b.id) === id)).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "mine"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 - GET Booking By ID - Owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "const booking = body.data?.booking ?? body.data;",
+                  "pm.test(\"Owner can retrieve the booking\", function () {",
+                  "  pm.expect(body.success).to.eql(true);",
+                  "  pm.expect(String(booking.id)).to.eql(pm.environment.get(\"bookingId\"));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{bookingId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 - GET All Bookings - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "const bookings = Array.isArray(body.data) ? body.data : body.data?.bookings;",
+                  "pm.test(\"Admin receives all bookings\", function () {",
+                  "  pm.expect(body.success).to.eql(true);",
+                  "  pm.expect(bookings).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Created booking appears in admin results\", function () {",
+                  "  const id = pm.environment.get(\"bookingId\");",
+                  "  pm.expect(bookings.some(b => String(b.id) === id)).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "all"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05 - PATCH Approve Booking - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "const booking = body.data?.booking ?? body.data;",
+                  "pm.test(\"Booking was approved\", function () {",
+                  "  pm.expect(body.success).to.eql(true);",
+                  "  pm.expect(booking.status).to.eql(\"approved\");",
+                  "  pm.expect(String(booking.id)).to.eql(pm.environment.get(\"bookingId\"));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{bookingId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Run these requests in order after member and admin login. The first request creates the booking variables used by the remaining requests."
+    },
+    {
+      "name": "Bookings - Error Scenarios",
+      "item": [
+        {
+          "name": "POST Create Booking - No Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"resource_id\": {{resourceId}},\n    \"start_time\": \"{{bookingStartTime}}\",\n    \"end_time\": \"{{bookingEndTime}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Attempts to create a booking without an access token."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Request is unsuccessful\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.success).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Create Booking - Overlapping Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"resource_id\": {{resourceId}},\n    \"start_time\": \"{{bookingStartTime}}\",\n    \"end_time\": \"{{bookingEndTime}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Attempts to create another booking for the same resource and time period used by the booking created in the main flow."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "",
+                  "pm.test(\"Request is unsuccessful\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.success).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH Booking Status - Member Forbidden",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{bookingId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"approved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Attempts to approve a booking using a regular member token instead of an administrator token."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Request is unsuccessful\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.success).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Run these after the successful booking flow. They cover missing authentication, an overlapping booking, and a member attempting an admin-only status update."
     }
   ]
 }

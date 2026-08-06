@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+//import dotenv from "dotenv";
 
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
@@ -11,10 +11,10 @@ const { Client } = pg;
 const currentFile = fileURLToPath(import.meta.url);
 const currentDirectory = path.dirname(currentFile);
 
-dotenv.config({
+/*dotenv.config({
     path: path.resolve(currentDirectory, "../.env"),
     override: true,
-});
+});*/
 
 const migrationsDirectory = path.resolve(
     currentDirectory,

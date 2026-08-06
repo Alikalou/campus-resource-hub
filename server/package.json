@@ -4,16 +4,22 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "node --watch src/server.js",
-        "start": "node src/server.js",
-        "db:migrate": "node scripts/migrate.js",
-        "db:seed": "node scripts/seed.js",
-        "create:user": "node scripts/create-user"
+        "dev": "node --env-file=.env --watch src/server.js",
+        "start": "node --env-file=.env src/server.js",
+        "test": "node --env-file=.env.test --test --test-concurrency=1",
+        "db:migrate": "node --env-file=.env scripts/migrate.js",
+        "db:migrate:test": "node --env-file=.env.test scripts/migrate.js",
+        "db:seed": "node --env-file=.env scripts/seed.js",
+        "create-admin": "node --env-file=.env scripts/create-admin.js"
     },
     "dependencies": {
         "bcryptjs": "^3.0.3",
         "dotenv": "^17.4.2",
         "express": "^5.2.1",
+        "jsonwebtoken": "^9.0.3",
         "pg": "^8.22.0"
+    },
+    "devDependencies": {
+        "supertest": "^7.2.2"
     }
 }

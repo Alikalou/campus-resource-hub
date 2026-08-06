@@ -1,18 +1,35 @@
 import express from "express";
 import resourceRoutes from "./routes/resourceRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import { AppError } from "./errors/AppError.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { ERROR_CODES } from "./errors/errorCodes.js";
+
+import {
+    authenticate,
+} from "./middleware/authMiddleware.js";
+
+import {
+    requireAdmin,
+} from "./middleware/requireRole.js";
+
+import {
+    getAuditLogs,
+} from "./controllers/auditLogController.js";
+
 
 const app = express();
 
 app.use(express.json());
 
+//The route for getting the audit logs
+app.get("/admin/audit-logs", authenticate, requireAdmin, getAuditLogs);
 
 //Router mounting, which is a js express feature.
 app.use("/resources", resourceRoutes);
 app.use("/bookings", bookingRoutes);
+app.use("/auth", authRoutes);
 
 app.use((req, res, next) => {
     return next(

@@ -1,16 +1,56 @@
-//I'm importing the app error class and the error codes because errors are not only for validation
 import { AppError } from "../errors/AppError.js";
 import { ERROR_CODES } from "../errors/errorCodes.js";
 
-//we need also to import the booking repo, that is the methods that interacte direclty with the DB.
+import pool from "../../database/pool.js";
+
+
 import {
     createBooking as insertBooking,
+    findAllBookings,
     findBookingById,
     findBookingsByUserId,
     findResourceById,
     findUserById,
-    findBookingConflict
+    findBookingConflict,
+    updateBookingStatus as updateBookingStatusRepo
 } from "../repositories/bookingRepo.js";
+
+import {
+    createAuditLog,
+} from "../repositories/auditRepo.js";
+
+
+export async function getAllBookings() {
+    return findAllBookings();
+}
+
+export async function getMyBookings(userId) {
+    const user = await findUserById(userId);
+
+    if (user === null) {
+        throw new AppError(
+            "User not found.",
+            404,
+            ERROR_CODES.USER_NOT_FOUND
+        );
+    }
+
+    return findBookingsByUserId(userId);
+}
+
+export async function getBookingById(bookingId) {
+    const booking = await findBookingById(bookingId);
+
+    if (booking === null) {
+        throw new AppError(
+            "Booking not found.",
+            404,
+            ERROR_CODES.BOOKING_NOT_FOUND
+        );
+    }
+
+    return booking;
+}
 
 
 export async function createBooking({
@@ -63,35 +103,78 @@ export async function createBooking({
 
 }
 
+export async function updateBookingStatus({
+    bookingId,
+    status,
+    adminId
+}) {
+    const client = await pool.connect();
+    try {
+        const existingBooking = await findBookingById(bookingId, client);
 
-export async function getBookings(userId) {
-    const user = await findUserById(userId);
+        if (existingBooking === null) {
+            throw new AppError(
+                "Booking not found.",
+                404,
+                ERROR_CODES.BOOKING_NOT_FOUND
+            );
+        }
 
-    if (user === null) {
-        throw new AppError(
-            "User not found.",
-            404,
-            ERROR_CODES.USER_NOT_FOUND
+        if (existingBooking.status !== "pending") {
+            throw new AppError(
+                "Only pending bookings can be approved or rejected.",
+                409,
+                ERROR_CODES.INVALID_BOOKING_STATUS_TRANSITION
+            );
+        }
+
+        const updatedBooking = await updateBookingStatusRepo({
+            bookingId,
+            status,
+            client
+        });
+
+        if (updatedBooking === null) {
+            throw new AppError(
+                "The booking status was changed by another request.",
+                409,
+                ERROR_CODES.BOOKING_STATUS_CONFLICT
+            );
+        }
+
+        const audit = await createAuditLog(
+            {
+                actorId: adminId,
+
+                action: "booking_status_updated",
+
+                subjectType: "bookings",
+                subjectId: bookingId,
+
+                oldValues: {
+                    status: existingBooking.status,
+                },
+
+                newValues: {
+                    status: updatedBooking.status,
+                },
+                client
+            }
         );
+
+        await client.query("COMMIT");
+
+        return {
+            booking: updatedBooking,
+            audit
+        }
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error
+    } finally {
+        client.release();
     }
-
-    return findBookingsByUserId(userId);
 }
-
-export async function getBookingById(bookingId) {
-    const booking = await findBookingById(bookingId);
-
-    if (booking === null) {
-        throw new AppError(
-            "Booking not found.",
-            404,
-            ERROR_CODES.BOOKING_NOT_FOUND
-        );
-    }
-
-    return booking;
-}
-
 
 export async function hasBookingConflict({
     resourceId,

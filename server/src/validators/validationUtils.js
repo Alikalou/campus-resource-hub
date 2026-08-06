@@ -76,3 +76,8 @@ export function isValidDateTime(value) {
         Date.parse(value.trim())
     );
 }
+
+
+export function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
