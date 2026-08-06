@@ -80,31 +80,17 @@ Before running the project, install:
 * Git
 * Docker Desktop
 * Visual Studio Code or Cursor
+* Postman
 
 ## Completed
 
-### Week 1 — Ownership and kickoff
-
-* Set up the GitHub repository
-* Confirmed the technical stack
-* Initialized the Node.js server
-* Added the `/health` endpoint
-
-### Week 2 — In-memory Resources API
-
-* Defined and documented the Resource model
-* Implemented resource retrieval, creation, and update endpoints
-* Added resource input validation and normalization
-* Added centralized error handling and consistent API responses
-* Added a Postman collection and local environment
-
-### Week 3 — PostgreSQL integration
-
-* Designed the database schema and ERD
-* Added PostgreSQL with Docker Compose
-* Created migrations and seed data
-* Connected the Resources API to PostgreSQL
-* Refactored resource routes into a dedicated controller
+* Set up the repository, backend stack, Node.js server and environment documentation.
+* Built the Resources API with validation, consistent responses, PostgreSQL persistence, and organized application layers.
+* Designed the database schema and ERD, then added Docker Compose, migrations, and repeatable seed data.
+* Implemented booking creation, retrieval, ownership checks and overlap prevention.
+* Added registration, login, password hashing, JWT authentication, and role-based authorization.
+* Added admin resource management, audit logging, booking approval and rejection.
+* Added the Postman collection, test environment safeguards, and integration tests for critical backend flows.
 
 ## Architecture
 
@@ -138,3 +124,6 @@ POST /bookings
 
 - [Resource model](server/docs/resource-model.md)
 - [Booking model](server/docs/booking-model.md)
+- [User model](server/docs/user-model.md)
+- [audit log model](server/docs/audit-log-model.md)
+- [Integration tests](server/docs/integration-tests.md)

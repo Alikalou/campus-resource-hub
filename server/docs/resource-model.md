@@ -60,7 +60,7 @@ resource type:
 | `location`   | Optional      | Optional           |
 | `type`       | Must be `room`| Must be `equipment`|
 | `capacity`   | Required      | Optional           |
-| `is_active`| Required      | Required           |
+| `is_active`  | Required      | Required           |
 
 For example, a meeting room and a projector would both be stored as
 resources:
