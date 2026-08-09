@@ -18,10 +18,18 @@ import {
     getAuditLogs,
 } from "./controllers/auditLogController.js";
 
+import "dotenv/config";
+
+
+import cors from "cors";
 
 const app = express();
 
 app.use(express.json());
+
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+}))
 
 //The route for getting the audit logs
 app.get("/admin/audit-logs", authenticate, requireAdmin, getAuditLogs);
