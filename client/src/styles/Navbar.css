@@ -1,0 +1,48 @@
+.navbar {
+    display: flex;
+    align-items: center;
+
+    padding: 1rem 2rem;
+
+    border-bottom: 1px solid #ddd;
+}
+
+.navbar-brand {
+    margin-right: 3rem;
+
+    color: #222;
+    font-size: 1.1rem;
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navbar-links a,
+.navbar-account a {
+    color: #333;
+    text-decoration: none;
+}
+
+.navbar-links a:hover,
+.navbar-account a:hover {
+    text-decoration: underline;
+}
+
+.navbar-account {
+    display: flex;
+    align-items: center;
+
+    gap: 1rem;
+
+    margin-left: auto;
+}
+
+.account-name {
+    color: #555;
+    font-size: 0.9rem;
+}

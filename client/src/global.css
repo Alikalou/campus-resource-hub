@@ -1,0 +1,27 @@
+/* global.css */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f7fa;
+    color: #1f2937;
+}
+
+main {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 0;
+}
+
+button {
+    font: inherit;
+}
+
+a {
+    color: inherit;
+}

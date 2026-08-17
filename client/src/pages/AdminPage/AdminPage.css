@@ -1,0 +1,74 @@
+.admin-page {
+    width: min(1100px, 90%);
+    margin: 0 auto;
+    padding: 4rem 0;
+}
+
+.admin-header {
+    max-width: 650px;
+    margin-bottom: 3rem;
+}
+
+.admin-label {
+    margin-bottom: 0.5rem;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.admin-header h1 {
+    margin-bottom: 1rem;
+
+    font-size: 2.5rem;
+}
+
+.admin-header p {
+    line-height: 1.6;
+}
+
+.admin-actions {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(280px, 1fr));
+
+    gap: 1.5rem;
+}
+
+.admin-card {
+    padding: 2rem;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    text-decoration: none;
+    color: inherit;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.admin-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.admin-card h2 {
+    margin-bottom: 0.75rem;
+}
+
+.admin-card p {
+    margin-bottom: 1.5rem;
+
+    line-height: 1.6;
+}
+
+.admin-card span {
+    font-weight: 600;
+}
