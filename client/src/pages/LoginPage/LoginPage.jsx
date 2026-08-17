@@ -1,21 +1,28 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
-import { register } from "../api/authApi";
-import "../styles/auth.css";
-import "../styles/buttons.css";
-import "../styles/forms.css";
 
-export default function RegisterPage() {
+import {
+    useLocation,
+    useNavigate,
+} from "react-router";
+
+import { login } from "../../api/authApi";
+
+import "../../styles/auth.css";
+import "../../styles/buttons.css";
+
+
+export default function LoginPage() {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [formData, setFormData] = useState({
-        name: "",
         email: "",
         password: "",
     });
 
     const [error, setError] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] =
+        useState(false);
 
     function handleChange(event) {
         const { name, value } = event.target;
@@ -33,14 +40,20 @@ export default function RegisterPage() {
         setIsSubmitting(true);
 
         try {
-            await register(formData);
+            const data = await login(formData);
 
-            navigate("/login", {
-                state: {
-                    message:
-                        "Account created successfully. Please sign in.",
-                },
-            });
+            //I'm saving JWS using the 2 statements below.
+            localStorage.setItem(
+                "token",
+                data.token
+            );
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(data.user)
+            );
+
+            navigate("/resources");
         } catch (error) {
             setError(error.message);
         } finally {
@@ -49,31 +62,24 @@ export default function RegisterPage() {
     }
 
     return (
-        <main className="auth-page" onSubmit={handleSubmit}>
+        <main className="auth-page">
             <section className="auth-card">
-                <h1>Create Account</h1>
+                <h1>Sign In</h1>
 
                 <p className="auth-subtitle">
-                    Create an account to start booking
-                    campus resources.
+                    Sign in to manage your campus bookings.
                 </p>
 
-                <form className="auth-form">
-                    <div className="form-field">
-                        <label htmlFor="name">
-                            Name
-                        </label>
+                {location.state?.message && (
+                    <p className="success-message">
+                        {location.state.message}
+                    </p>
+                )}
 
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
+                <form
+                    className="auth-form"
+                    onSubmit={handleSubmit}
+                >
                     <div className="form-field">
                         <label htmlFor="email">
                             Email
@@ -85,6 +91,7 @@ export default function RegisterPage() {
                             type="email"
                             value={formData.email}
                             onChange={handleChange}
+                            placeholder="you@example.com"
                             required
                         />
                     </div>
@@ -100,18 +107,32 @@ export default function RegisterPage() {
                             type="password"
                             value={formData.password}
                             onChange={handleChange}
+                            placeholder="Enter your password"
                             required
                         />
                     </div>
 
+                    {error && (
+                        <p
+                            className="error-message"
+                            role="alert"
+                        >
+                            {error}
+                        </p>
+                    )}
+
                     <button
                         className="primary-button"
                         type="submit"
+                        disabled={isSubmitting}
                     >
-                        Create Account
+                        {isSubmitting
+                            ? "Signing in..."
+                            : "Sign In"}
                     </button>
                 </form>
             </section>
         </main>
-    )
+    );
 }
+

@@ -1,0 +1,28 @@
+.primary-button,
+.secondary-button {
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: none;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.primary-button {
+    background-color: #2563eb;
+    color: white;
+}
+
+.primary-button:hover {
+    background-color: #1d4ed8;
+}
+
+.secondary-button {
+    border: 1px solid #cbd5e1;
+    background-color: white;
+    color: #334155;
+}
+
+.secondary-button:hover {
+    background-color: #f1f5f9;
+}
