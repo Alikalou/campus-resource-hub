@@ -1,4 +1,3 @@
-
 import {
     parseResourceId,
     validateCreateResource,
@@ -10,7 +9,8 @@ import { ERROR_CODES } from "../errors/errorCodes.js";
 
 import {
     createResource as createResourceService,
-    getResources as getResourcesService,
+    getResourcesForAdmin as getResourcesAdminService,
+    getResourcesSummary as getResourcesService,
     getResourceById as getResourceByIdService,
     updateResource as updateResourceService,
 } from "../services/resourceService.js";
@@ -20,6 +20,18 @@ export async function getResources(req, res, next) {
     try {
         const resources = await getResourcesService();
 
+        return res.status(200).json({
+            success: true,
+            data: resources,
+        });
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export async function getResourcesForAdmin(req, res, next) {
+    try {
+        const resources = await getResourcesAdminService();
         return res.status(200).json({
             success: true,
             data: resources,

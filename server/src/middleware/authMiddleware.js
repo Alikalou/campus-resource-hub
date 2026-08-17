@@ -53,6 +53,26 @@ export async function authenticate(req, res, next) {
 
         return next();
     } catch (error) {
+        if (error instanceof jwt.TokenExpiredError) {
+            return next(
+                new AppError(
+                    "Your session has expired. Please log in again.",
+                    401,
+                    ERROR_CODES.UNAUTHENTICATED
+                )
+            );
+        }
+
+        if (error instanceof jwt.JsonWebTokenError) {
+            return next(
+                new AppError(
+                    "The access token is invalid.",
+                    401,
+                    ERROR_CODES.UNAUTHENTICATED
+                )
+            );
+        }
+
         return next(error);
     }
 }
