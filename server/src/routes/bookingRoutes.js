@@ -5,7 +5,8 @@ import {
     getMyBookings,
     getBookingById,
     createBooking,
-    updateBookingStatus
+    updateBookingStatus,
+    cancelBooking
 } from "../controllers/bookingController.js"
 
 //import { temporaryUser } from "../middleware/temporaryUser.js";
@@ -27,6 +28,9 @@ router.get("/:id", authenticate, getBookingById);
 
 // PATCH /bookings/:id
 router.patch("/:id", authenticate, requireAdmin, updateBookingStatus);
+
+// POST /bookings/:id
+router.post("/:id/cancel", authenticate, cancelBooking);
 
 
 export default router;

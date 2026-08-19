@@ -11,5 +11,6 @@ CREATE TYPE user_role AS ENUM (
 CREATE TYPE booking_status AS ENUM (
     'pending',
     'approved',
-    'rejected'
+    'rejected',
+    'cancelled'
 );

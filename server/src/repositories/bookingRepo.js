@@ -43,9 +43,18 @@ export async function findResourceById(resourceId) {
 export async function findBookingsByUserId(userId) {
     const result = await pool.query(
         `
-            SELECT *
+            SELECT     
+                bookings.id,
+                bookings.start_time,
+                bookings.end_time,
+                bookings.status,
+                resources.id AS resource_id,
+                resources.name AS "resourceName",
+                resources.location AS "resourceLocation"
             FROM bookings
-            WHERE user_id = $1
+            JOIN resources 
+                ON resources.id = bookings.resource_id
+            WHERE bookings.user_id = $1
             ORDER BY start_time DESC, id DESC
         `,
         [userId]
@@ -126,7 +135,7 @@ export async function updateBookingStatus({
     status,
     db = pool
 }) {
-    const result = await db.query(
+    const result = await pool.query(
         `
             UPDATE bookings
             SET status = $1
@@ -146,6 +155,28 @@ export async function updateBookingStatus({
             status,
             bookingId,
         ]
+    );
+
+    return result.rows[0] ?? null;
+}
+
+export async function cancelBooking(bookingId) {
+    const result = await pool.query(
+        `
+            UPDATE bookings
+            SET status = 'cancelled'
+            WHERE id = $1
+            RETURNING
+                id,
+                user_id,
+                resource_id,
+                start_time,
+                end_time,
+                status,
+                created_at,
+                updated_at
+        `,
+        [bookingId]
     );
 
     return result.rows[0] ?? null;

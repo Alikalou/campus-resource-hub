@@ -12,7 +12,8 @@ import {
     findResourceById,
     findUserById,
     findBookingConflict,
-    updateBookingStatus as updateBookingStatusRepo
+    updateBookingStatus as updateBookingStatusRepo,
+    cancelBooking as cancelBookingRepo
 } from "../repositories/bookingRepo.js";
 
 import {
@@ -186,4 +187,43 @@ export async function hasBookingConflict({
         startTime,
         endTime,
     });
+}
+
+export async function cancelBooking(bookingId) {
+    const existingBooking = await findBookingById(bookingId);
+
+    if (existingBooking === null) {
+        throw new AppError(
+            "Booking not found.",
+            404,
+            ERROR_CODES.BOOKING_NOT_FOUND
+        );
+    }
+
+    if (existingBooking.status === "cancelled") {
+        throw new AppError(
+            "Booking is already cancelled.",
+            400,
+            ERROR_CODES.BOOKING_VALIDATION_FAILED
+        );
+    }
+
+    if (existingBooking.status === "rejected") {
+        throw new AppError(
+            "Booking is already rejected.",
+            400,
+            ERROR_CODES.BOOKING_VALIDATION_FAILED
+        );
+    }
+    const cancelledBooking = await cancelBookingRepo(bookingId);
+
+    if (cancelledBooking === null) {
+        throw new AppError(
+            "Failed to cancel booking.",
+            500,
+            ERROR_CODES.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    return cancelledBooking;
 }

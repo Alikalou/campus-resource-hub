@@ -10,7 +10,8 @@ import {
     getBookingById as getBookingByIdService,
     getMyBookings as getMyBookingsService,
     updateBookingStatus as updateBookingStatusService,
-    getAllBookings as getAllBookingsService
+    getAllBookings as getAllBookingsService,
+    cancelBooking as cancelBookingService
 } from "../services/bookingService.js";
 
 //Importing validation layer, but parsing shouldn't be confused with validation since it parses rather than validate. 
@@ -160,3 +161,30 @@ export async function createBooking(req, res, next) {
         return next(error);
     }
 }
+
+export async function cancelBooking(req, res, next) {
+    try {
+        const bookingId = Number(req.params.id);
+
+        if (!Number.isInteger(bookingId) || bookingId <= 0) {
+            return next(
+                new AppError(
+                    "Booking ID must be a positive integer",
+                    400,
+                    INVALID_BOOKING_ID
+                )
+            );
+        }
+
+
+        const booking = await cancelBookingService(bookingId);
+
+        return res.status(200).json({
+            success: true,
+            data: booking,
+        });
+    } catch (error) {
+        return next(error);
+    }
+}
+
