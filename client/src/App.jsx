@@ -4,7 +4,7 @@ import HomePage from "./pages//HomePage/HomePage";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ResourcesPage from "./pages/ResourcesPage/ResourcesPage";
-import ResourceDetailsPage from "./pages/ResourceDetailsPage";
+import ResourceDetailsPage from "./pages/ResourceDetailsPage/ResourceDetailsPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import AdminPage from "./pages/AdminPage/AdminPage";
 import AdminBookingsPage from "./pages/AdminBookingsPage";

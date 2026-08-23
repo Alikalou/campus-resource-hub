@@ -1,0 +1,62 @@
+.resource-details-page {
+    max-width: 800px;
+}
+
+.resource-details-card,
+.booking-request-card {
+    padding: 1.5rem;
+
+    background-color: white;
+
+    border: 1px solid #e2e5e9;
+    border-radius: 12px;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.resource-details-card {
+    margin-bottom: 1.5rem;
+}
+
+.resource-details-card h1,
+.booking-request-card h2 {
+    margin-top: 0;
+}
+
+.resource-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.resource-details p {
+    margin: 0;
+}
+
+.resource-label {
+    font-weight: 600;
+}
+
+.booking-request-description {
+    margin-bottom: 1.5rem;
+    color: #6b7280;
+}
+
+.booking-request-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.booking-message {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+}
+
+.booking-message--error {
+    background-color: #fee2e2;
+}
+
+.booking-message--success {
+    background-color: #dcfce7;
+}

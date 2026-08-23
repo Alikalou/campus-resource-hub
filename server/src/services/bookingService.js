@@ -94,12 +94,17 @@ export async function createBooking({
             ERROR_CODES.BOOKING_CONFLICT
         );
     }
+    const status =
+        user.role === "admin"
+            ? "approved"
+            : "pending";
 
     return insertBooking({
         userId,
         resourceId,
         startTime,
         endTime,
+        status
     });
 
 }

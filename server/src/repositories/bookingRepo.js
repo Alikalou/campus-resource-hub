@@ -107,9 +107,11 @@ export async function createBooking({
     resourceId,
     startTime,
     endTime,
+    status,
 }) {
-    const result = await pool.query(
-        `
+    if (status = "pending") {
+        const result = await pool.query(
+            `
             INSERT INTO bookings (
                 user_id,
                 resource_id,
@@ -119,15 +121,40 @@ export async function createBooking({
             VALUES ($1, $2, $3, $4)
             RETURNING *
         `,
+            [
+                userId,
+                resourceId,
+                startTime,
+                endTime,
+            ]
+        );
+
+        return result.rows[0];
+    }
+
+    const result = await pool.query(
+        `
+            INSERT INTO bookings (
+                user_id,
+                resource_id,
+                start_time,
+                end_time,
+                status
+            )
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *
+        `,
         [
             userId,
             resourceId,
             startTime,
             endTime,
+            status,
         ]
     );
 
     return result.rows[0];
+
 }
 
 export async function updateBookingStatus({
