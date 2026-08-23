@@ -1,12 +1,31 @@
 import {
     Link,
-    useNavigate
+    useNavigate,
+    useLocation
 } from "react-router"
 
 import "../styles/NavBar.css";
 import "../styles/buttons.css";
 
+const NAV_LINKS = [
+    {
+        label: "Home",
+        path: "/",
+    },
+    {
+        label: "Resources",
+        path: "/resources",
+    },
+    {
+        label: "My Bookings",
+        path: "/bookings/mine",
+        requiresAuth: true,
+    },
+];
+
 export default function NavBar({ onLogout }) {
+    const location = useLocation();
+
     const navigate = useNavigate();
 
     const token = localStorage.getItem("token");
@@ -16,6 +35,17 @@ export default function NavBar({ onLogout }) {
     const user = storedUser ? JSON.parse(storedUser) : null;
 
     const isAuthenticated = Boolean(token);
+
+    const visibleLinks = NAV_LINKS.filter((link) => {
+        if (link.requiresAuth && !isAuthenticated) {
+            return false;
+        }
+
+        if (link.path === location.pathname) {
+            return false;
+        }
+        return true;
+    });
 
     function handleLogout() {
         localStorage.removeItem("token");
@@ -37,17 +67,15 @@ export default function NavBar({ onLogout }) {
             </Link>
 
             <nav className="navbar-links">
-                <Link to="/resources">
-                    Resources
-                </Link>
-
-                {isAuthenticated && (
-                    <Link to="/bookings/mine">
-                        My Bookings
+                {visibleLinks.map((link) => (
+                    <Link
+                        key={link.path}
+                        to={link.path}
+                    >
+                        {link.label}
                     </Link>
-                )}
+                ))}
             </nav>
-
             <div className="navbar-account">
                 {isAuthenticated ? (
                     <>
