@@ -82,6 +82,11 @@
     margin-bottom: 1.5rem;
 }
 
+.resource-card-header h2 {
+    line-height: 1.4;
+    min-height: 2.8em;
+}
+
 .resource-type {
     display: inline-block;
 

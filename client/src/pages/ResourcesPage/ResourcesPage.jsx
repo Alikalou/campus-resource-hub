@@ -84,7 +84,7 @@ export default function ResourcesPage() {
                                     {resource.type}
                                 </span>
 
-                                <h2>{resource.name}</h2>
+                                <h2 className="resource-card-header">{resource.name}</h2>
                             </div>
 
                             <div className="resource-details">
