@@ -53,7 +53,7 @@ export default function LoginPage() {
                 JSON.stringify(data.user)
             );
 
-            navigate("/resources");
+            navigate("/");
         } catch (error) {
             setError(error.message);
         } finally {
