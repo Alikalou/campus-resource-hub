@@ -1,0 +1,82 @@
+.booking-card {
+    padding: 1.5rem;
+
+    background-color: white;
+
+    border: 1px solid #e2e5e9;
+    border-radius: 12px;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.booking-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 1rem;
+
+    margin-bottom: 1.25rem;
+}
+
+.booking-card__header h3 {
+    margin: 0;
+
+    font-size: 1.1rem;
+    color: #222;
+}
+
+.booking-card__details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.booking-card__details>div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.booking-card__label {
+    color: #666;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.booking-card__actions {
+    margin-top: 1.25rem;
+
+    padding-top: 1rem;
+    border-top: 1px solid #e2e5e9;
+}
+
+
+/* Status badge */
+
+.booking-status {
+    padding: 0.3rem 0.65rem;
+
+    border-radius: 999px;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    text-transform: capitalize;
+}
+
+.booking-status--pending {
+    background-color: #fff7e6;
+    color: #8a5a00;
+}
+
+.booking-status--approved {
+    background-color: #effaf3;
+    color: #276738;
+}
+
+.booking-status--rejected,
+.booking-status--cancelled {
+    background-color: #fff1f1;
+    color: #a12020;
+}

@@ -28,3 +28,9 @@ export function updateBookingStatus(bookingId, status) {
         }),
     });
 }
+
+export function cancelBooking(bookingId) {
+    return apiRequest(`/bookings/${bookingId}/cancel`, {
+        method: "POST",
+    });
+}
