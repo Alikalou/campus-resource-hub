@@ -1,6 +1,6 @@
 import {
     createResource as insertResource, findResourceById, updateResourceById,
-    retrieveResourcesSummary, retrieveResourcesForAdmin
+    retrieveResourcesSummary, retrieveResourcesFull
 } from "../repositories/resourceRepo.js";
 
 import { AppError } from "../errors/AppError.js";
@@ -19,7 +19,7 @@ export async function getResourcesSummary() {
 }
 
 export async function getResourcesForAdmin() {
-    return retrieveResourcesForAdmin();
+    return retrieveResourcesFull();
 }
 
 export async function getResourceById(resourceId) {

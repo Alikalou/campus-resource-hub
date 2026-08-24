@@ -6,7 +6,7 @@ const RESOURCE_FIELDS = {
         name,
         type
     `,
-    admin: `
+    full: `
         id,
         name,
         type,
@@ -24,7 +24,7 @@ export function mapResourceSummary(row) {
     };
 }
 
-export function mapResourceForAdmin(row) {
+export function mapResourceFull(row) {
     return {
         id: Number(row.id),
         name: row.name,
@@ -55,7 +55,7 @@ export async function createResource({
                 is_active
             )
             VALUES ($1, $2, $3, $4, $5)
-            RETURNING ${RESOURCE_FIELDS.admin}
+            RETURNING ${RESOURCE_FIELDS.full}
         `,
         [
             name,
@@ -81,22 +81,22 @@ export async function retrieveResourcesSummary() {
     return result.rows.map(mapResourceSummary);
 }
 
-export async function retrieveResourcesForAdmin() {
+export async function retrieveResourcesFull() {
     const result = await pool.query(
         `
-            SELECT ${RESOURCE_FIELDS.admin}
+            SELECT ${RESOURCE_FIELDS.full}
             FROM resources
             ORDER BY id
         `
     );
 
-    return result.rows.map(mapResourceForAdmin);
+    return result.rows.map(mapResourceFull);
 }
 
 export async function findResourceById(resourceId) {
     const result = await pool.query(
         `
-            SELECT ${RESOURCE_FIELDS.summary}
+            SELECT ${RESOURCE_FIELDS.full}
             FROM resources
             WHERE id = $1
         `,
@@ -107,7 +107,7 @@ export async function findResourceById(resourceId) {
         return null;
     }
 
-    return mapResourceSummary(result.rows[0]);
+    return mapResourceFull(result.rows[0]);
 }
 
 export async function updateResourceById(
@@ -123,7 +123,7 @@ export async function updateResourceById(
                 type = $4,
                 capacity = $5
             WHERE id = $1
-            RETURNING ${RESOURCE_FIELDS.admin}
+            RETURNING ${RESOURCE_FIELDS.full}
         `,
         [
             resourceId,

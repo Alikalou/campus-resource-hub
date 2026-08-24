@@ -3,13 +3,24 @@ import pool from "../../database/pool.js";
 export async function findAllBookings() {
     const result = await pool.query(
         `
-            SELECT *
+            SELECT                 
+                bookings.id,
+                bookings.user_id,
+                bookings.resource_id,
+                bookings.start_time,
+                bookings.end_time,
+                bookings.status,
+                bookings.created_at,
+                resources.name AS resource_name,
+                resources.type AS resource_type,
+                resources.location AS resource_location
             FROM bookings
+            LEFT JOIN resources ON bookings.resource_id = resources.id
             ORDER BY created_at DESC
         `
     );
 
-    return result.rows ?? null;
+    return result.rows;
 }
 
 export async function findUserById(userId) {
