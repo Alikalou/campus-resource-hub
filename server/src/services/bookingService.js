@@ -21,11 +21,11 @@ import {
 } from "../repositories/auditRepo.js";
 
 
-export async function getAllBookings() {
-    return findAllBookings();
+export async function getAllBookings({ limit, offset }) {
+    return findAllBookings({ limit, offset });
 }
 
-export async function getMyBookings(userId) {
+export async function getMyBookings({ userId, limit, offset }) {
     const user = await findUserById(userId);
 
     if (user === null) {
@@ -36,7 +36,7 @@ export async function getMyBookings(userId) {
         );
     }
 
-    return findBookingsByUserId(userId);
+    return findBookingsByUserId({ userId, limit, offset });
 }
 
 export async function getBookingById(bookingId) {

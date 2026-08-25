@@ -12,13 +12,14 @@ import {
 //import { temporaryUser } from "../middleware/temporaryUser.js";
 import { authenticate } from "../middleware/authMiddleware.js";
 import { requireAdmin } from "../middleware/requireRole.js";
+import { paginationMiddleware } from "../middleware/pagination.js";
 
 const router = express.Router();
 
-router.get("/all", authenticate, requireAdmin, getAllBookings);
+router.get("/all", authenticate, requireAdmin, paginationMiddleware, getAllBookings);
 
 // GET /bookings which is basically listing my bookings
-router.get("/mine", authenticate, getMyBookings);
+router.get("/mine", authenticate, paginationMiddleware, getMyBookings);
 
 // POST /bookings
 router.post("/", authenticate, createBooking);

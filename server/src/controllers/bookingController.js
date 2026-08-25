@@ -3,6 +3,7 @@
 import { AppError } from "../errors/AppError.js";
 import { ERROR_CODES } from "../errors/errorCodes.js";
 
+import { createPaginationMeta } from "../utils/pagination.js";
 
 //Having services to satisfy the need of the project
 import {
@@ -25,11 +26,25 @@ import { parseBookingId } from "../validators/booking/bookingValidationUtils.js"
 
 export async function getAllBookings(req, res, next) {
     try {
-        const bookings = await getAllBookingsService();
+
+        const {
+            page,
+            limit,
+            offset,
+        } = req.pagination;
+
+        const {
+            bookings,
+            total } = await getAllBookingsService({ limit, offset });
 
         return res.status(200).json({
             success: true,
             data: bookings,
+            pagination: createPaginationMeta({
+                page,
+                limit,
+                total,
+            }),
         });
 
     } catch (error) {
@@ -42,11 +57,29 @@ export async function getAllBookings(req, res, next) {
  */
 export async function getMyBookings(req, res, next) {
     try {
-        const bookings = await getMyBookingsService(req.user.id);
+        const {
+            page,
+            limit,
+            offset,
+        } = req.pagination;
+
+        const {
+            bookings,
+            total,
+        } = await getMyBookingsService({
+            userId: req.user.id,
+            limit,
+            offset,
+        });
 
         return res.status(200).json({
             success: true,
             data: bookings,
+            pagination: createPaginationMeta({
+                page,
+                limit,
+                total,
+            }),
         });
     } catch (error) {
         return next(error);
