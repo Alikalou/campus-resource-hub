@@ -1,6 +1,6 @@
 import {
     createResource as insertResource, findResourceById, updateResourceById,
-    retrieveResourcesSummary, retrieveResourcesFull
+    retrieveResources as retrieveResourcesRepo
 } from "../repositories/resourceRepo.js";
 
 import { AppError } from "../errors/AppError.js";
@@ -14,12 +14,10 @@ export async function createResource(resourceData) {
     return insertResource(resourceData);
 }
 
-export async function getResourcesSummary() {
-    return retrieveResourcesSummary();
-}
-
-export async function getResourcesForAdmin() {
-    return retrieveResourcesFull();
+export async function getResources({ limit, offset }) {
+    return retrieveResourcesRepo({
+        limit, offset
+    });
 }
 
 export async function getResourceById(resourceId) {

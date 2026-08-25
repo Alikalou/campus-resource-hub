@@ -8,10 +8,6 @@ export function getResourceById(id) {
     return apiRequest(`/resources/${id}`);
 }
 
-export function getResourcesForAdmin() {
-    return apiRequest("/resources/admin");
-}
-
 export function createResource(resourceData) {
     return apiRequest("/resources", {
         method: "POST",

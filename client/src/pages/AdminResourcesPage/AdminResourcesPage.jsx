@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
     createResource,
     updateResource,
-    getResourcesForAdmin,
+    getResources,
 } from "../../api/resourcesApi";
 
 import "./AdminResourcesPage.css";
@@ -24,7 +24,7 @@ export default function AdminResourcesPage() {
     useEffect(() => {
         async function loadResources() {
             try {
-                const data = await getResourcesForAdmin();
+                const data = await getResources();
                 setResources(data);
             } catch (error) {
                 setError(error.message);

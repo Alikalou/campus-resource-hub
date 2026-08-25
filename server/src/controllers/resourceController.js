@@ -9,32 +9,38 @@ import { ERROR_CODES } from "../errors/errorCodes.js";
 
 import {
     createResource as createResourceService,
-    getResourcesForAdmin as getResourcesAdminService,
-    getResourcesSummary as getResourcesService,
     getResourceById as getResourceByIdService,
     updateResource as updateResourceService,
+    getResources as getResourcesService,
 } from "../services/resourceService.js";
+
+import { createPaginationMeta, parsePagination } from "../utils/pagination.js";
 
 
 export async function getResources(req, res, next) {
     try {
-        const resources = await getResourcesService();
+        const {
+            page,
+            limit,
+            offset,
+        } = req.pagination;
 
-        return res.status(200).json({
-            success: true,
-            data: resources,
+        const {
+            resources,
+            total,
+        } = await getResourcesService({
+            limit,
+            offset,
         });
-    } catch (error) {
-        return next(error);
-    }
-}
 
-export async function getResourcesForAdmin(req, res, next) {
-    try {
-        const resources = await getResourcesAdminService();
         return res.status(200).json({
             success: true,
             data: resources,
+            pagination: createPaginationMeta({
+                page,
+                limit,
+                total,
+            }),
         });
     } catch (error) {
         return next(error);

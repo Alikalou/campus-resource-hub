@@ -1,30 +1,15 @@
 import pool from "../../database/pool.js";
 
-const RESOURCE_FIELDS = {
-    summary: `
-        id,
-        name,
-        type
-    `,
-    full: `
+const RESOURCE_FIELDS = `
         id,
         name,
         type,
         location,
         capacity,
         is_active
-    `,
-};
+    `;
 
-export function mapResourceSummary(row) {
-    return {
-        id: Number(row.id),
-        name: row.name,
-        type: row.type,
-    };
-}
-
-export function mapResourceFull(row) {
+export function mapResource(row) {
     return {
         id: Number(row.id),
         name: row.name,
@@ -55,7 +40,7 @@ export async function createResource({
                 is_active
             )
             VALUES ($1, $2, $3, $4, $5)
-            RETURNING ${RESOURCE_FIELDS.full}
+            RETURNING ${RESOURCE_FIELDS}
         `,
         [
             name,
@@ -69,34 +54,35 @@ export async function createResource({
     return result.rows[0];
 }
 
-export async function retrieveResourcesSummary() {
+export async function retrieveResources({ limit, offset }) {
     const result = await pool.query(
         `
-            SELECT ${RESOURCE_FIELDS.summary}
+            SELECT ${RESOURCE_FIELDS}
             FROM resources
             ORDER BY id
+            LIMIT $1
+            OFFSET $2
+        `,
+        [limit, offset]
+    );
+
+    const countResult = await pool.query(
+        `
+            SELECT COUNT(*)::int AS total
+            FROM resources
         `
     );
 
-    return result.rows.map(mapResourceSummary);
-}
-
-export async function retrieveResourcesFull() {
-    const result = await pool.query(
-        `
-            SELECT ${RESOURCE_FIELDS.full}
-            FROM resources
-            ORDER BY id
-        `
-    );
-
-    return result.rows.map(mapResourceFull);
+    return {
+        resources: result.rows.map(mapResource),
+        total: countResult.rows[0].total,
+    };
 }
 
 export async function findResourceById(resourceId) {
     const result = await pool.query(
         `
-            SELECT ${RESOURCE_FIELDS.full}
+            SELECT ${RESOURCE_FIELDS}
             FROM resources
             WHERE id = $1
         `,
@@ -107,7 +93,7 @@ export async function findResourceById(resourceId) {
         return null;
     }
 
-    return mapResourceFull(result.rows[0]);
+    return mapResource(result.rows[0]);
 }
 
 export async function updateResourceById(
@@ -123,7 +109,7 @@ export async function updateResourceById(
                 type = $4,
                 capacity = $5
             WHERE id = $1
-            RETURNING ${RESOURCE_FIELDS.full}
+            RETURNING ${RESOURCE_FIELDS}
         `,
         [
             resourceId,
