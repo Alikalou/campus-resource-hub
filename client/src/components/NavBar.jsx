@@ -48,6 +48,12 @@ export default function NavBar({ onLogout }) {
     });
 
     function handleLogout() {
+        const confirmed = window.confirm(
+            "Are you sure you want to sign out?");
+        if (!confirmed) {
+            return;
+        }
+
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 

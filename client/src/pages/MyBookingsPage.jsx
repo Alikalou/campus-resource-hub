@@ -84,7 +84,7 @@ export default function MyBookingsPage() {
 
     return (
         <>
-            <NavBar onLogout={() => setIsAuthenticated(false)} />
+            <NavBar />
             <main>
                 <h1>My Bookings</h1>
 
