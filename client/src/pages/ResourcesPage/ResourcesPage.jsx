@@ -3,10 +3,14 @@ import { Link } from "react-router";
 
 import { getResources } from "../../api/resourcesApi";
 import NavBar from "../../components/NavBar";
+import Pagination from "../../components/Pagination";
+
 import "./ResourcesPage.css";
 
 export default function ResourcesPage() {
     const [resources, setResources] = useState([]);
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState(null);
 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,8 +18,9 @@ export default function ResourcesPage() {
     useEffect(() => {
         async function loadResources() {
             try {
-                const data = await getResources();
-                setResources(data);
+                const response = await getResources({ page, limit: 4 });
+                setPagination(response.pagination);
+                setResources(response.data);
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -24,7 +29,7 @@ export default function ResourcesPage() {
         }
 
         loadResources();
-    }, []);
+    }, [page]);
 
     if (isLoading) {
         return (
@@ -119,6 +124,13 @@ export default function ResourcesPage() {
                         </article>
                     ))}
                 </section>
+                {pagination && (
+                    <Pagination
+                        currentPage={page}
+                        totalPages={pagination.totalPages}
+                        onPageChange={setPage}
+                    />
+                )}
             </main>
 
         </>

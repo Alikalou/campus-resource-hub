@@ -13,9 +13,12 @@ import "../../styles/forms.css";
 import NavBar from "../../components/NavBar";
 import ResourceCreateForm from "../../components/ResourceCreateForm";
 import ResourceCard from "../../components/ResourceCard";
+import Pagination from "../../components/Pagination";
 
 export default function AdminResourcesPage() {
     const [resources, setResources] = useState([]);
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -24,8 +27,13 @@ export default function AdminResourcesPage() {
     useEffect(() => {
         async function loadResources() {
             try {
-                const data = await getResources();
-                setResources(data);
+                const response = await getResources({
+                    page,
+                    limit: 5
+                });
+
+                setResources(response.data);
+                setPagination(response.pagination)
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -34,7 +42,7 @@ export default function AdminResourcesPage() {
         }
 
         loadResources();
-    }, []);
+    }, [page]);
 
     function handleEdit(resource) {
         setEditingId(resource.id);
@@ -145,6 +153,15 @@ export default function AdminResourcesPage() {
                         ))
                     )}
                 </section>
+
+                {pagination && (
+                    <Pagination
+                        currentPage={pagination.page}
+                        totalPages={pagination.totalPages}
+                        onPageChange={setPage}
+                    />
+                )}
+
             </main>
         </>
     );

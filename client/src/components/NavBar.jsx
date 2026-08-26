@@ -32,7 +32,10 @@ export default function NavBar({ onLogout }) {
 
     const storedUser = localStorage.getItem("user");
 
-    const user = storedUser ? JSON.parse(storedUser) : null;
+    const user =
+        storedUser && storedUser !== "undefined"
+            ? JSON.parse(storedUser)
+            : null;
 
     const isAuthenticated = Boolean(token);
 

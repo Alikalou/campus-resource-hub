@@ -10,17 +10,21 @@ import NavBar from "../components/NavBar";
 import AdminBookingCard from "../components/AdminBookingCard";
 
 import "../styles/global.css";
+import Pagination from "../components/Pagination";
 
 export default function AdminBookingsPage() {
     const [bookings, setBookings] = useState([]);
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
         async function loadBookings() {
             try {
-                const data = await getAllBookings();
-                setBookings(data);
+                const response = await getAllBookings({ page, limit: 5 });
+                setBookings(response.data);
+                setPagination(response.pagination);
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -29,7 +33,7 @@ export default function AdminBookingsPage() {
         }
 
         loadBookings();
-    }, []);
+    }, [page]);
 
     async function handleStatusChange(
         bookingId,
@@ -82,6 +86,13 @@ export default function AdminBookingsPage() {
                         ))
                     )}
                 </section>
+                {pagination && (
+                    <Pagination
+                        currentPage={page}
+                        totalPages={pagination.totalPages}
+                        onPageChange={setPage}
+                    />
+                )}
             </main>
         </>
     );

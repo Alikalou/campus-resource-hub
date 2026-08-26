@@ -11,9 +11,10 @@ export default function HomePage() {
         );
     const storedUser = localStorage.getItem("user");
 
-    const user = storedUser
-        ? JSON.parse(storedUser)
-        : null;
+    const user =
+        storedUser && storedUser !== "undefined"
+            ? JSON.parse(storedUser)
+            : null;
 
     const isAdmin = (isAuthenticated && user?.role === "admin")
 

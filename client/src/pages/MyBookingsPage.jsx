@@ -7,9 +7,12 @@ import {
 
 import BookingCard from "../components/BookingCard";
 import NavBar from "../components/NavBar";
+import Pagination from "../components/Pagination";
 
 export default function MyBookingsPage() {
     const [bookings, setBookings] = useState([]);
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
     const [cancelError, setCancelError] = useState("");
@@ -18,9 +21,10 @@ export default function MyBookingsPage() {
     useEffect(() => {
         async function loadBookings() {
             try {
-                const data = await getMyBookings();
+                const response = await getMyBookings({ page, limit: 5 });
 
-                setBookings(data);
+                setBookings(response.data);
+                setPagination(response.pagination);
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -29,7 +33,7 @@ export default function MyBookingsPage() {
         }
 
         loadBookings();
-    }, []);
+    }, [page]);
 
     async function handleCancelBooking(bookingId) {
         setCancelError("");
@@ -86,6 +90,7 @@ export default function MyBookingsPage() {
         <>
             <NavBar />
             <main>
+
                 <h1>My Bookings</h1>
 
                 {cancelError && (
@@ -125,6 +130,13 @@ export default function MyBookingsPage() {
                         ))
                     )}
                 </section>
+                {pagination && (
+                    <Pagination
+                        currentPage={pagination.page}
+                        totalPages={pagination.totalPages}
+                        onPageChange={setPage}
+                    />
+                )}
             </main>
         </>
     );

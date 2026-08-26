@@ -1,12 +1,12 @@
 import { apiRequest } from "./apiClient";
 
-export function getAllBookings() {
-    return apiRequest("/bookings/all");
+export function getAllBookings(params) {
+    return apiRequest("/bookings/all", { params });
 }
 
 
-export function getMyBookings() {
-    return apiRequest("/bookings/mine");
+export function getMyBookings(params) {
+    return apiRequest("/bookings/mine", { params });
 }
 
 export function getBookingById(bookingId) {

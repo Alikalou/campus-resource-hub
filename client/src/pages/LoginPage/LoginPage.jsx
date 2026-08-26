@@ -45,12 +45,12 @@ export default function LoginPage() {
             //I'm saving JWS using the 2 statements below.
             localStorage.setItem(
                 "token",
-                data.token
+                data.data.token
             );
 
             localStorage.setItem(
                 "user",
-                JSON.stringify(data.user)
+                JSON.stringify(data.data.user)
             );
 
             navigate("/");

@@ -4,14 +4,20 @@ export async function apiRequest(path, options = {}) {
     try {
         const token = localStorage.getItem("token");
 
+        const { params, ...fetchOptions } = options;
+
+        const queryString = params
+            ? `?${new URLSearchParams(params).toString()}`
+            : "";
+
         const response = await fetch(
-            `${API_BASE_URL}${path}`,
+            `${API_BASE_URL}${path}${queryString}`,
             {
-                ...options,
+                ...fetchOptions,
                 headers: {
                     "Content-Type": "application/json",
                     ...(token && {
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
                     }),
                     ...options.headers,
                 },
@@ -24,8 +30,9 @@ export async function apiRequest(path, options = {}) {
 
             window.location.href = "/login";
 
-            throw new Error("Your session has expired, please login again");
-
+            throw new Error(
+                "Your session has expired, please login again"
+            );
         }
 
         const body = await response.json();
@@ -36,7 +43,7 @@ export async function apiRequest(path, options = {}) {
             );
         }
 
-        return body.data;
+        return body;
     } catch (error) {
         if (error instanceof TypeError) {
             throw new Error(
