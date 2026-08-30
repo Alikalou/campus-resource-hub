@@ -9,20 +9,38 @@ import {
     findAllBookings,
     findBookingById,
     findBookingsByUserId,
-    findResourceById,
-    findUserById,
     findBookingConflict,
     updateBookingStatus as updateBookingStatusRepo,
     cancelBooking as cancelBookingRepo
 } from "../repositories/bookingRepo.js";
+
+import { findResourceById } from "../repositories/resourceRepo.js";
+
+import { findUserById } from "../repositories/userRepo.js";
 
 import {
     createAuditLog,
 } from "../repositories/auditRepo.js";
 
 
-export async function getAllBookings({ limit, offset }) {
-    return findAllBookings({ limit, offset });
+export async function getAllBookings({ limit, offset, status,
+    resourceName, start, end }) {
+
+    let message = null;
+
+    if ((start && !end) || (!start && end)) {
+        message = "Your time interval has a missing bound, establish a complete one";
+    }
+
+    const result = await findAllBookings({
+        limit, offset, status,
+        resourceName, start, end
+    });
+
+    return {
+        ...result,
+        message
+    };
 }
 
 export async function getMyBookings({ userId, limit, offset }) {

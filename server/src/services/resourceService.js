@@ -14,9 +14,9 @@ export async function createResource(resourceData) {
     return insertResource(resourceData);
 }
 
-export async function getResources({ limit, offset }) {
+export async function getResources({ limit, offset, type, name }) {
     return retrieveResourcesRepo({
-        limit, offset
+        limit, offset, type, name
     });
 }
 

@@ -5,7 +5,7 @@ import { ERROR_CODES } from "../errors/errorCodes.js";
 
 import { createPaginationMeta } from "../utils/pagination.js";
 
-//Having services to satisfy the need of the project
+//Having services to satisfy the needs of the project
 import {
     createBooking as createBookingService,
     getBookingById as getBookingByIdService,
@@ -23,6 +23,7 @@ import {
 
 import { parseBookingId } from "../validators/booking/bookingValidationUtils.js";
 
+import { parseBookingFilters } from "../utils/bookingFilter.js";
 
 export async function getAllBookings(req, res, next) {
     try {
@@ -33,12 +34,36 @@ export async function getAllBookings(req, res, next) {
             offset,
         } = req.pagination;
 
+        const filters = parseBookingFilters(req.query);
+
+        if (filters.message) {
+            return next(
+                new AppError(
+                    filters.message,
+                    400,
+                    ERROR_CODES.INVALID_RESOURCE_FILTERS,
+                )
+            );
+        }
+
         const {
             bookings,
-            total } = await getAllBookingsService({ limit, offset });
+            total,
+            message } = await getAllBookingsService(
+                {
+                    limit,
+                    offset,
+                    status: filters.status,
+                    resourceName: filters.resourceName,
+                    start: filters.start,
+                    end: filters.end
+                }
+            );
+
 
         return res.status(200).json({
             success: true,
+            message,
             data: bookings,
             pagination: createPaginationMeta({
                 page,

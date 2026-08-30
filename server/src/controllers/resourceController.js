@@ -4,6 +4,8 @@ import {
     validateUpdateResource
 } from "../validators/resourceValidator.js";
 
+import { parseResourceFilters } from "../utils/resourceFilters.js";
+
 import { AppError } from "../errors/AppError.js";
 import { ERROR_CODES } from "../errors/errorCodes.js";
 
@@ -25,12 +27,26 @@ export async function getResources(req, res, next) {
             offset,
         } = req.pagination;
 
+        const filters = parseResourceFilters(req.query);
+
+        if (filters.message) {
+            return next(
+                new AppError(
+                    filters.message,
+                    400,
+                    ERROR_CODES.INVALID_RESOURCE_FILTERS,
+                )
+            );
+        }
+
         const {
             resources,
             total,
         } = await getResourcesService({
             limit,
             offset,
+            name: filters.name,
+            type: filters.type
         });
 
         return res.status(200).json({

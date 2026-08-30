@@ -1,9 +1,50 @@
 import pool from "../../database/pool.js";
 
-export async function findAllBookings({ limit, offset }) {
+export async function findAllBookings({
+    limit,
+    offset,
+    status,
+    resourceName,
+    start,
+    end,
+}) {
+    const conditions = [];
+    const values = [];
+
+    if (status) {
+        values.push(status);
+        conditions.push(`bookings.status = $${values.length}`);
+    }
+
+    if (resourceName) {
+        values.push(`%${resourceName}%`);
+        conditions.push(`resources.name ILIKE $${values.length}`);
+    }
+
+    if (start && end) {
+        values.push(start);
+        const startParam = values.length;
+
+        values.push(end);
+        const endParam = values.length;
+
+        conditions.push(`
+            bookings.start_time < $${endParam}
+            AND bookings.end_time > $${startParam}
+        `);
+    }
+
+    const whereClause =
+        conditions.length > 0
+            ? `WHERE ${conditions.join(" AND ")}`
+            : "";
+
+    const limitParam = values.length + 1;
+    const offsetParam = values.length + 2;
+
     const result = await pool.query(
         `
-            SELECT                 
+            SELECT
                 bookings.id,
                 bookings.user_id,
                 bookings.resource_id,
@@ -15,53 +56,32 @@ export async function findAllBookings({ limit, offset }) {
                 resources.type AS resource_type,
                 resources.location AS resource_location
             FROM bookings
-            LEFT JOIN resources ON bookings.resource_id = resources.id
-            ORDER BY created_at DESC
-            LIMIT $1
-            OFFSET $2
-
+            LEFT JOIN resources
+                ON bookings.resource_id = resources.id
+            ${whereClause}
+            ORDER BY bookings.created_at DESC
+            LIMIT $${limitParam}
+            OFFSET $${offsetParam}
         `,
-        [limit, offset]
+        [...values, limit, offset]
     );
 
-    const count = await pool.query(`
-        SELECT COUNT(*)::int AS total
-        FROM bookings
+    const count = await pool.query(
+        `
+            SELECT COUNT(*)::int AS total
+            FROM bookings
+            LEFT JOIN resources
+                ON bookings.resource_id = resources.id
+            ${whereClause}
+        `,
+        values
+    );
 
-    `);
 
     return {
         bookings: result.rows,
-        total: count.rows[0].total,
-    }
-}
-
-export async function findUserById(userId) {
-    //Be careful that the returned columns here are everything, so later on if you modify the relation's
-    //attributes this change would not be obvious unless you test it directly.
-    const result = await pool.query(
-        `
-            SELECT *
-            FROM users
-            WHERE id = $1
-        `,
-        [userId]
-    );
-
-    return result.rows[0] ?? null;
-}
-
-export async function findResourceById(resourceId) {
-    const result = await pool.query(
-        `
-            SELECT *
-            FROM resources
-            WHERE id = $1
-        `,
-        [resourceId]
-    );
-
-    return result.rows[0] ?? null;
+        total: count.rows[0].total
+    };
 }
 
 export async function findBookingsByUserId({ userId, limit, offset }) {

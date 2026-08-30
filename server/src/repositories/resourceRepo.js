@@ -54,23 +54,52 @@ export async function createResource({
     return result.rows[0];
 }
 
-export async function retrieveResources({ limit, offset }) {
+export async function retrieveResources({
+    limit,
+    offset,
+    name,
+    type,
+}) {
+    const values = [];
+    const conditions = [];
+
+    if (name) {
+        values.push(`%${name}%`);
+        conditions.push(`name ILIKE $${values.length}`);
+    }
+
+    if (type) {
+        values.push(type);
+        conditions.push(`type = $${values.length}`);
+    }
+
+    const whereClause =
+        conditions.length > 0
+            ? `WHERE ${conditions.join(" AND ")}`
+            : "";
+
+    const limitParam = values.length + 1;
+    const offsetParam = values.length + 2;
+
     const result = await pool.query(
         `
             SELECT ${RESOURCE_FIELDS}
             FROM resources
+            ${whereClause}
             ORDER BY id
-            LIMIT $1
-            OFFSET $2
+            LIMIT $${limitParam}
+            OFFSET $${offsetParam}
         `,
-        [limit, offset]
+        [...values, limit, offset]
     );
 
     const countResult = await pool.query(
         `
             SELECT COUNT(*)::int AS total
             FROM resources
-        `
+            ${whereClause}
+        `,
+        values
     );
 
     return {
