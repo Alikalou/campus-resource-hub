@@ -115,16 +115,23 @@ export default function ResourceDetailsPage() {
                     <div className="resource-details">
                         <p>
                             <span className="resource-label">
+                                Resource Name:
+                            </span>{" "}
+                            {resource.data.name}
+                        </p>
+
+                        <p>
+                            <span className="resource-label">
                                 Type:
                             </span>{" "}
-                            {resource.type}
+                            {resource.data.type}
                         </p>
 
                         <p>
                             <span className="resource-label">
                                 Location:
                             </span>{" "}
-                            {resource.location}
+                            {resource.data.location}
                         </p>
 
                         {resource.capacity != null && (
