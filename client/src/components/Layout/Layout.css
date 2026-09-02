@@ -1,0 +1,11 @@
+.app-layout {
+    min-height: 100vh;
+}
+
+
+.page-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 0;
+}

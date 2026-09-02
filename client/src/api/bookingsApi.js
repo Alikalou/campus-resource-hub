@@ -1,11 +1,27 @@
 import { apiRequest } from "./apiClient";
 
-export function getAllBookings(params) {
+export function getAllBookings({ page, limit, resourceName, status, start, end }) {
+    const params = {
+        page,
+        limit,
+        ...(resourceName && { resourceName }),
+        ...(status && { status }),
+        ...(start && { start }),
+        ...(end && { end })
+    };
     return apiRequest("/bookings/all", { params });
 }
 
 
-export function getMyBookings(params) {
+export function getMyBookings({ page, limit, resourceName, status, start, end }) {
+    const params = {
+        page,
+        limit,
+        ...(resourceName && { resourceName }),
+        ...(status && { status }),
+        ...(start && { start }),
+        ...(end && { end })
+    };
     return apiRequest("/bookings/mine", { params });
 }
 

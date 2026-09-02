@@ -1,6 +1,7 @@
 import pool from "../../database/pool.js";
 
-export async function findAllBookings({
+export async function findBookings({
+    userId,
     limit,
     offset,
     status,
@@ -11,14 +12,25 @@ export async function findAllBookings({
     const conditions = [];
     const values = [];
 
+    if (userId) {
+        values.push(userId);
+        conditions.push(
+            `bookings.user_id = $${values.length}`
+        );
+    }
+
     if (status) {
         values.push(status);
-        conditions.push(`bookings.status = $${values.length}`);
+        conditions.push(
+            `bookings.status = $${values.length}`
+        );
     }
 
     if (resourceName) {
         values.push(`%${resourceName}%`);
-        conditions.push(`resources.name ILIKE $${values.length}`);
+        conditions.push(
+            `resources.name ILIKE $${values.length}`
+        );
     }
 
     if (start && end) {
@@ -56,7 +68,7 @@ export async function findAllBookings({
                 resources.type AS resource_type,
                 resources.location AS resource_location
             FROM bookings
-            LEFT JOIN resources
+            JOIN resources
                 ON bookings.resource_id = resources.id
             ${whereClause}
             ORDER BY bookings.created_at DESC
@@ -70,55 +82,17 @@ export async function findAllBookings({
         `
             SELECT COUNT(*)::int AS total
             FROM bookings
-            LEFT JOIN resources
+            JOIN resources
                 ON bookings.resource_id = resources.id
             ${whereClause}
         `,
         values
     );
 
-
-    return {
-        bookings: result.rows,
-        total: count.rows[0].total
-    };
-}
-
-export async function findBookingsByUserId({ userId, limit, offset }) {
-    const result = await pool.query(
-        `
-            SELECT     
-                bookings.id,
-                bookings.start_time,
-                bookings.end_time,
-                bookings.status,
-                resources.id AS resource_id,
-                resources.name AS "resourceName",
-                resources.location AS "resourceLocation"
-            FROM bookings
-            JOIN resources 
-                ON resources.id = bookings.resource_id
-            WHERE bookings.user_id = $1
-            ORDER BY start_time DESC, id DESC
-            LIMIT $2
-            OFFSET $3
-        `,
-        [userId, limit, offset]
-    );
-
-    const count = await pool.query(
-        `
-                SELECT COUNT(*)::int AS total
-                FROM bookings
-                WHERE bookings.user_id = $1
-            `,
-        [userId]
-    );
-
     return {
         bookings: result.rows,
         total: count.rows[0].total,
-    }
+    };
 }
 
 export async function findBookingConflict({

@@ -8,12 +8,12 @@ import { getResourceById } from "../../api/resourcesApi";
 import { createBooking } from "../../api/bookingsApi";
 
 import "./ResourceDetailsPage.css"
-import NavBar from "../../components/NavBar";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-import "../../utils/dateUtils.js";
+import "../../styles/common.css";
+
 import { formatDateTimeLocal } from "../../utils/dateUtils.js";
 
 export default function ResourceDetailsPage() {
@@ -107,11 +107,9 @@ export default function ResourceDetailsPage() {
 
     return (
         <>
-            <NavBar />
-            <main className="resource-details-page">
-                <section className="resource-details-card">
-                    <h1>{resource.name}</h1>
 
+            <main className="page-container">
+                <section className="resource-details-card">
                     <div className="resource-details">
                         <p>
                             <span className="resource-label">

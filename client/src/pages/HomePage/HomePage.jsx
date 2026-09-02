@@ -20,11 +20,6 @@ export default function HomePage() {
 
     return (
         <>
-            <NavBar
-                onLogout={() =>
-                    setIsAuthenticated(false)
-                }
-            />
             <main className="home-page">
                 <section className="hero">
                     <p className="hero-label">

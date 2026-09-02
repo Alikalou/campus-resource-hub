@@ -6,7 +6,7 @@ import "./AdminPage.css";
 export default function AdminPage() {
     return (
         <>
-            <NavBar />
+
 
             <main className="admin-page">
                 <section className="admin-header">

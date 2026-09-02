@@ -6,9 +6,8 @@ import pool from "../../database/pool.js";
 
 import {
     createBooking as insertBooking,
-    findAllBookings,
+    findBookings,
     findBookingById,
-    findBookingsByUserId,
     findBookingConflict,
     updateBookingStatus as updateBookingStatusRepo,
     cancelBooking as cancelBookingRepo
@@ -32,7 +31,7 @@ export async function getAllBookings({ limit, offset, status,
         message = "Your time interval has a missing bound, establish a complete one";
     }
 
-    const result = await findAllBookings({
+    const result = await findBookings({
         limit, offset, status,
         resourceName, start, end
     });
@@ -43,8 +42,11 @@ export async function getAllBookings({ limit, offset, status,
     };
 }
 
-export async function getMyBookings({ userId, limit, offset }) {
+export async function getMyBookings({ userId, limit, offset, status,
+    resourceName, start, end }) {
+
     const user = await findUserById(userId);
+    let message = null;
 
     if (user === null) {
         throw new AppError(
@@ -54,7 +56,19 @@ export async function getMyBookings({ userId, limit, offset }) {
         );
     }
 
-    return findBookingsByUserId({ userId, limit, offset });
+    if ((start && !end) || (!start && end)) {
+        message = "Your time interval has a missing bound, establish a complete one";
+    }
+
+    const result = await findBookings({
+        userId, limit, offset, status,
+        resourceName, start, end
+    });
+
+    return {
+        ...result,
+        message
+    };
 }
 
 export async function getBookingById(bookingId) {

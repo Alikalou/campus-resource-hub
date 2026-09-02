@@ -6,22 +6,37 @@ import {
 } from "../api/bookingsApi";
 
 import BookingCard from "../components/BookingCard";
-import NavBar from "../components/NavBar";
 import Pagination from "../components/Pagination";
+import BookingFilter from "../components/BookingFilter";
 
 export default function MyBookingsPage() {
     const [bookings, setBookings] = useState([]);
     const [page, setPage] = useState(1);
     const [pagination, setPagination] = useState(null);
+    const [filters, setFilters] = useState({
+        resourceName: "",
+        status: "",
+        start: "",
+        end: ""
+    });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
     const [cancelError, setCancelError] = useState("");
     const [cancellingBookingId, setCancellingBookingId] = useState(null);
 
+
+    const statusTypes = [
+        { label: "Pending", value: "pending", },
+        { label: "Approved", value: "approved" },
+        { label: "Rejected", value: "rejected" },
+        { label: "Cancelled", value: "cancelled" },
+    ];
+
+
     useEffect(() => {
         async function loadBookings() {
             try {
-                const response = await getMyBookings({ page, limit: 5 });
+                const response = await getMyBookings({ page, limit: 4, ...filters });
 
                 setBookings(response.data);
                 setPagination(response.pagination);
@@ -33,7 +48,12 @@ export default function MyBookingsPage() {
         }
 
         loadBookings();
-    }, [page]);
+    }, [page, filters]);
+
+    function handleFilterChange(newFilters) {
+        setFilters(newFilters);
+        setPage(1);
+    }
 
     async function handleCancelBooking(bookingId) {
         setCancelError("");
@@ -74,36 +94,34 @@ export default function MyBookingsPage() {
         );
     }
 
-    const now = new Date();
-
-    const upcomingBookings = bookings.filter(
-        (booking) =>
-            new Date(booking.start_time) >= now
-    );
-
-    const pastBookings = bookings.filter(
-        (booking) =>
-            new Date(booking.start_time) < now
-    );
 
     return (
-        <>
-            <NavBar />
-            <main>
+        <main className="page-container">
 
-                <h1>My Bookings</h1>
+            <h1 className="page-header">My Bookings</h1>
 
-                {cancelError && (
-                    <p role="alert">{cancelError}</p>
-                )}
+            {cancelError && (
+                <p className="alert-error" role="alert">
+                    {cancelError}
+                </p>
+            )}
 
-                <section>
-                    <h2>Upcoming Bookings</h2>
+            <section className="filter-section">
+                <BookingFilter
+                    categories={statusTypes}
+                    onSearch={handleFilterChange}
+                />
+            </section>
 
-                    {upcomingBookings.length === 0 ? (
-                        <p>You have no upcoming bookings.</p>
-                    ) : (
-                        upcomingBookings.map((booking) => (
+            <section className="content-section">
+
+                {bookings.length === 0 ? (
+                    <p className="empty-state">
+                        You have no bookings.
+                    </p>
+                ) : (
+                    <div className="card-list">
+                        {bookings.map((booking) => (
                             <BookingCard
                                 key={booking.id}
                                 booking={booking}
@@ -112,32 +130,20 @@ export default function MyBookingsPage() {
                                     cancellingBookingId === booking.id
                                 }
                             />
-                        ))
-                    )}
-                </section>
-
-                <section>
-                    <h2>Past Bookings</h2>
-
-                    {pastBookings.length === 0 ? (
-                        <p>You have no past bookings.</p>
-                    ) : (
-                        pastBookings.map((booking) => (
-                            <BookingCard
-                                key={booking.id}
-                                booking={booking}
-                            />
-                        ))
-                    )}
-                </section>
-                {pagination && (
-                    <Pagination
-                        currentPage={pagination.page}
-                        totalPages={pagination.totalPages}
-                        onPageChange={setPage}
-                    />
+                        ))}
+                    </div>
                 )}
-            </main>
-        </>
+
+            </section>
+
+            {pagination && (
+                <Pagination
+                    currentPage={pagination.page}
+                    totalPages={pagination.totalPages}
+                    onPageChange={setPage}
+                />
+            )}
+
+        </main>
     );
 }

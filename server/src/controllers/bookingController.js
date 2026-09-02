@@ -41,24 +41,25 @@ export async function getAllBookings(req, res, next) {
                 new AppError(
                     filters.message,
                     400,
-                    ERROR_CODES.INVALID_RESOURCE_FILTERS,
+                    ERROR_CODES.INVALID_BOOKING_FILTERS,
                 )
             );
         }
 
         const {
+            message,
             bookings,
-            total,
-            message } = await getAllBookingsService(
-                {
-                    limit,
-                    offset,
-                    status: filters.status,
-                    resourceName: filters.resourceName,
-                    start: filters.start,
-                    end: filters.end
-                }
-            );
+            total
+        } = await getAllBookingsService(
+            {
+                limit,
+                offset,
+                status: filters.status,
+                resourceName: filters.resourceName,
+                start: filters.start,
+                end: filters.end
+            }
+        );
 
 
         return res.status(200).json({
@@ -88,17 +89,35 @@ export async function getMyBookings(req, res, next) {
             offset,
         } = req.pagination;
 
+        const filters = parseBookingFilters(req.query);
+
+        if (filters.message) {
+            return next(
+                new AppError(
+                    filters.message,
+                    400,
+                    ERROR_CODES.INVALID_BOOKING_FILTERS,
+                )
+            );
+        }
+
         const {
             bookings,
             total,
+            message
         } = await getMyBookingsService({
             userId: req.user.id,
             limit,
             offset,
+            status: filters.status,
+            resourceName: filters.resourceName,
+            start: filters.start,
+            end: filters.end
         });
 
         return res.status(200).json({
             success: true,
+            message,
             data: bookings,
             pagination: createPaginationMeta({
                 page,

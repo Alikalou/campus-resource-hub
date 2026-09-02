@@ -5,12 +5,13 @@ import {
     updateBookingStatus,
 } from "../api/bookingsApi";
 
-import NavBar from "../components/NavBar";
-
 import AdminBookingCard from "../components/AdminBookingCard";
+import BookingFilter from "../components/BookingFilter";
 
-import "../styles/global.css";
 import Pagination from "../components/Pagination";
+
+import "../styles/buttons.css"
+import "../styles/BookingCard.css"
 
 export default function AdminBookingsPage() {
     const [bookings, setBookings] = useState([]);
@@ -18,11 +19,24 @@ export default function AdminBookingsPage() {
     const [pagination, setPagination] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
+    const [filters, setFilters] = useState({
+        resourceName: "",
+        status: "",
+        start: "",
+        end: ""
+    });
+
+    const statusTypes = [
+        { label: "Pending", value: "pending", },
+        { label: "Approved", value: "approved" },
+        { label: "Rejected", value: "rejected" },
+        { label: "Cancelled", value: "cancelled" },
+    ];
 
     useEffect(() => {
         async function loadBookings() {
             try {
-                const response = await getAllBookings({ page, limit: 5 });
+                const response = await getAllBookings({ page, limit: 4, ...filters });
                 setBookings(response.data);
                 setPagination(response.pagination);
             } catch (error) {
@@ -33,7 +47,12 @@ export default function AdminBookingsPage() {
         }
 
         loadBookings();
-    }, [page]);
+    }, [page, filters, bookings]);
+
+    function handleFilterChange(newFilters) {
+        setFilters(newFilters);
+        setPage(1);
+    }
 
     async function handleStatusChange(
         bookingId,
@@ -65,25 +84,33 @@ export default function AdminBookingsPage() {
 
     return (
         <>
-            <NavBar />
-            <main className="collection-page">
-                <header className="admin-bookings-header">
-                    <h1>Admin Bookings</h1>
-                </header>
+
+            <main className="page-container">
+                <h1 className="page-header">Admin Bookings</h1>
                 {error && (
-                    <p role="alert">{error}</p>
+                    <p role="alert" className="alert-error">{error}</p>
                 )}
-                <section className="bookings-section">
+                <section className="filter-section">
+                    <BookingFilter
+                        categories={statusTypes}
+                        onSearch={handleFilterChange}
+                    />
+
+                </section>
+
+                <section className="content-section">
                     <h2>Bookings</h2>
                     {bookings.length === 0 ? (
-                        <p>No bookings found.</p>
+                        <p className="empty-state">No bookings found.</p>
                     ) : (
-                        bookings.map((booking) => (
-                            <AdminBookingCard key={booking.id}
-                                booking={booking}
-                                onStatusChange={handleStatusChange}
-                            />
-                        ))
+                        <div className="card-list">
+                            {bookings.map((booking) => (
+                                <AdminBookingCard key={booking.id}
+                                    booking={booking}
+                                    onStatusChange={handleStatusChange}
+                                />
+                            ))}
+                        </div>
                     )}
                 </section>
                 {pagination && (
@@ -93,7 +120,7 @@ export default function AdminBookingsPage() {
                         onPageChange={setPage}
                     />
                 )}
-            </main>
+            </main >
         </>
     );
 }

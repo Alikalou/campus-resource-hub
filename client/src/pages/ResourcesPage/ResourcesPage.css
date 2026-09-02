@@ -1,7 +1,14 @@
 .resources-page {
-    width: min(1120px, 90%);
+    width: min(1280px, 90%);
     margin: 0 auto;
     padding: 4rem 0;
+}
+
+.resources-filter {
+    display: flex;
+    justify-content: flex-start;
+
+    margin-bottom: 2.5rem;
 }
 
 .resources-header {
@@ -43,11 +50,20 @@
 
 .resources-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(auto-fit, minmax(260px, 1fr));
-
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
+}
+
+@media (max-width: 1000px) {
+    .resources-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .resources-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .resource-card {
@@ -59,7 +75,7 @@
     padding: 1.75rem;
 
     border: 1px solid #e5e7eb;
-    border-radius: 16px;
+    border-radius: 0px;
 
     background: #ffffff;
 

@@ -14,11 +14,23 @@ import NavBar from "../../components/NavBar";
 import ResourceCreateForm from "../../components/ResourceCreateForm";
 import ResourceCard from "../../components/ResourceCard";
 import Pagination from "../../components/Pagination";
+import ResourceFilter from "../../components/ResourceFilter"
 
 export default function AdminResourcesPage() {
     const [resources, setResources] = useState([]);
     const [page, setPage] = useState(1);
     const [pagination, setPagination] = useState(null);
+    const [filters, setFilters] = useState({
+        name: "",
+        type: ""
+    });
+
+    const resourceTypes = [
+        { label: "All", value: "" },
+        { label: "Room", value: "room" },
+        { label: "Equipment", value: "equipment" },
+    ];
+
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +41,8 @@ export default function AdminResourcesPage() {
             try {
                 const response = await getResources({
                     page,
-                    limit: 5
+                    limit: 5,
+                    ...filters
                 });
 
                 setResources(response.data);
@@ -42,7 +55,12 @@ export default function AdminResourcesPage() {
         }
 
         loadResources();
-    }, [page]);
+    }, [page, filters, resources]);
+
+    function handleFilterChange(newFilters) {
+        setFilters(newFilters);
+        setPage(1);
+    }
 
     function handleEdit(resource) {
         setEditingId(resource.id);
@@ -102,7 +120,7 @@ export default function AdminResourcesPage() {
 
     return (
         <>
-            <NavBar />
+
 
             <main className="admin-resources-page">
                 <header className="admin-resources-header">
@@ -132,6 +150,14 @@ export default function AdminResourcesPage() {
                         onCreate={handleCreate}
                     />
                 )}
+
+                <section className="filter-section resources-filter">
+                    <ResourceFilter
+                        categories={resourceTypes}
+                        onSearch={handleFilterChange}
+                    />
+
+                </section>
 
                 <section className="resources-section">
                     <h2>Resources</h2>

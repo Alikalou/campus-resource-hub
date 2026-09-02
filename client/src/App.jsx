@@ -1,5 +1,7 @@
 import { Route, Routes } from "react-router";
 
+import Layout from "./components/Layout/Layout";
+
 import HomePage from "./pages//HomePage/HomePage";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -16,11 +18,6 @@ export default function App() {
   return (
     <Routes>
       <Route
-        path="/"
-        element={<HomePage />}
-      />
-
-      <Route
         path="/login"
         element={<LoginPage />}
       />
@@ -29,56 +26,63 @@ export default function App() {
         path="/register"
         element={<RegisterPage />}
       />
+      <Route element={<Layout />}>
 
-      <Route
-        path="/resources"
-        element={<ResourcesPage />}
-      />
+        <Route
+          path="/"
+          element={<HomePage />}
+        />
 
-      <Route
-        path="/resources/:id"
-        element={<ResourceDetailsPage />}
-      />
+        <Route
+          path="/resources"
+          element={<ResourcesPage />}
+        />
 
-      <Route
-        path="/bookings/mine"
-        element={
-          <ProtectedRoute>
-            <MyBookingsPage />
-          </ProtectedRoute>}
-      />
+        <Route
+          path="/resources/:id"
+          element={<ResourceDetailsPage />}
+        />
 
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute requiredRole={"admin"}>
-            <AdminPage />
-          </ProtectedRoute>}
-      />
+        <Route
+          path="/bookings/mine"
+          element={
+            <ProtectedRoute>
+              <MyBookingsPage />
+            </ProtectedRoute>}
+        />
 
-      <Route
-        path="/admin/bookings"
-        element={
-          <ProtectedRoute requiredRole="admin">
-            <AdminBookingsPage />
-          </ProtectedRoute>}
-      />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requiredRole={"admin"}>
+              <AdminPage />
+            </ProtectedRoute>}
+        />
 
-      <Route
-        path="/admin/resources"
-        element={
-          <ProtectedRoute
-            requiredRole="admin"
-          >
-            <AdminResourcesPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/admin/bookings"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminBookingsPage />
+            </ProtectedRoute>}
+        />
 
-      <Route
-        path="*"
-        element={<NotFoundPage />}
-      />
+        <Route
+          path="/admin/resources"
+          element={
+            <ProtectedRoute
+              requiredRole="admin"
+            >
+              <AdminResourcesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="*"
+          element={<NotFoundPage />}
+        />
+      </Route>
     </Routes>
   );
 }

@@ -6,10 +6,12 @@ export default function BookingCard({
     isCancelling,
 }) {
     const canCancel = booking.status === "pending";
+
     return (
-        <article className="booking-card">
+        <article className="booking-card booking-card--user">
+
             <div className="booking-card__header">
-                <h3>{booking.resourceName}</h3>
+                <h3>{booking.resource_name}</h3>
 
                 <span
                     className={`booking-status booking-status--${booking.status}`}
@@ -18,7 +20,9 @@ export default function BookingCard({
                 </span>
             </div>
 
+
             <div className="booking-card__details">
+
                 <div>
                     <span className="booking-card__label">
                         Start
@@ -31,6 +35,7 @@ export default function BookingCard({
                     </span>
                 </div>
 
+
                 <div>
                     <span className="booking-card__label">
                         End
@@ -42,24 +47,27 @@ export default function BookingCard({
                         ).toLocaleString()}
                     </span>
                 </div>
+
             </div>
+
 
             {onCancel && (
                 <div className="booking-card__actions">
+
                     <button
                         className="secondary-button"
                         type="button"
-                        onClick={() =>
-                            onCancel(booking.id)
-                        }
+                        onClick={() => onCancel(booking.id)}
                         disabled={!canCancel || isCancelling}
                     >
                         {isCancelling
                             ? "Cancelling..."
                             : "Cancel Booking"}
                     </button>
+
                 </div>
             )}
+
         </article>
     );
 }

@@ -12,11 +12,20 @@
     margin-bottom: 24px;
 }
 
+
+.resources-filter {
+    display: flex;
+    justify-content: flex-start;
+
+    margin-bottom: 2.5rem;
+}
+
+
 .resource-form {
     margin-bottom: 32px;
     padding: 24px;
     border: 1px solid #d1d5db;
-    border-radius: 10px;
+    border-radius: 0px;
     background-color: #f9fafb;
 }
 
@@ -32,8 +41,9 @@
 .resource-card {
     padding: 20px;
     border: 1px solid #d1d5db;
-    border-radius: 10px;
+    border-radius: 0px;
     background-color: white;
+    margin: 12px
 }
 
 .resource-details {

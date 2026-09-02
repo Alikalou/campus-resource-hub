@@ -1,6 +1,13 @@
 import { apiRequest } from "./apiClient";
 
-export function getResources(params) {
+export function getResources({ page, limit, name, type }) {
+    const params = {
+        page,
+        limit,
+        ...(name && { name }),
+        ...(type && { type }),
+    };
+
     return apiRequest("/resources", { params });
 }
 
